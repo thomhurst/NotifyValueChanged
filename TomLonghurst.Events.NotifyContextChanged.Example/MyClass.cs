@@ -9,4 +9,7 @@ public partial class MyClass
 
     [NotifyContextChange]
     private int _myAge;
+    
+    [NotifyContextChange]
+    private bool _isMale;
 }

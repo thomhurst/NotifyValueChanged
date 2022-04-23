@@ -16,4 +16,3 @@ myClass.MyName = "Tom";
 myClass.MyName = "Tom Longhurst";
 myClass.MyName = null;
 
-myClass.MyAge
