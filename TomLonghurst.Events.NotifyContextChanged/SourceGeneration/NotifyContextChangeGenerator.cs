@@ -20,14 +20,21 @@ public class NotifyContextChangeGenerator : ISourceGenerator
         {
             return;
         }
-        
+
+        var fieldsThatNeedInterfacesGenerating = new List<IFieldSymbol>();
         foreach (var containingClassGroup in syntaxReciever.IdentifiedFields.GroupBy(x => x.ContainingType)) 
         {
             var containingClass = containingClassGroup.Key;
             var namespaceSymbol = containingClass.ContainingNamespace;
-            var source = GenerateClass(context, containingClass, namespaceSymbol, containingClassGroup.ToList());
+            var fields = containingClassGroup.ToList();
+            var source = GenerateClass(context, containingClass, namespaceSymbol, fields);
+            fieldsThatNeedInterfacesGenerating.AddRange(fields);
             context.AddSource($"{containingClass.Name}_NotifyContextChanged.generated", SourceText.From(source, Encoding.UTF8));
         }
+
+        var interfaceSource = WriteInterfaces(context, fieldsThatNeedInterfacesGenerating);
+        context.AddSource($"INotifyContextChangedInterfaces_NotifyContextChanged.generated", SourceText.From(interfaceSource, Encoding.UTF8));
+
     }
     
     private string GenerateClass(GeneratorExecutionContext context, INamedTypeSymbol @class, INamespaceSymbol @namespace, List<IFieldSymbol> fields) {
@@ -40,13 +47,11 @@ public class NotifyContextChangeGenerator : ISourceGenerator
         classBuilder.AppendLine($"using {callerMemberSymbol.ContainingNamespace};");
         classBuilder.AppendLine($"namespace {@namespace.ToDisplayString()}");
         classBuilder.AppendLine("{");
-
-        var interfacesWritten = WriteInterfaces(classBuilder, fields).ToList();
         
         classBuilder.AppendLine($"public partial class {@class.Name}");
         classBuilder.AppendLine(":");
         
-        var commaSeparatedListOfInterfaces = interfacesWritten.Aggregate((a, x) => $"{a}, {x}");
+        var commaSeparatedListOfInterfaces = fields.Select(GetFullyQualifiedFieldType).Select(x => x.Split('.').Last()).Select(simpleFieldType => $"INotify{simpleFieldType}ContextChanged").Aggregate((a, x) => $"{a}, {x}");
         classBuilder.AppendLine(commaSeparatedListOfInterfaces); 
         classBuilder.AppendLine("{");
 
@@ -104,9 +109,20 @@ public class NotifyContextChangeGenerator : ISourceGenerator
         }
     }
 
-    private static IEnumerable<string> WriteInterfaces(StringBuilder classBuilder, List<IFieldSymbol> fields)
+    private static string WriteInterfaces(GeneratorExecutionContext context,
+        List<IFieldSymbol> fields)
     {
         List<string> fullyQualifiedTypesWritten = new();
+        
+        var classBuilder = new StringBuilder();
+        var notifyPropertyChangedSymbol = context.Compilation.GetTypeByMetadataName(typeof(INotifyContextChanged<>).FullName);
+        var callerMemberSymbol = context.Compilation.GetTypeByMetadataName("System.Runtime.CompilerServices.CallerMemberNameAttribute");
+        
+        classBuilder.AppendLine("using System;");
+        classBuilder.AppendLine($"using {notifyPropertyChangedSymbol.ContainingNamespace};");
+        classBuilder.AppendLine($"using {callerMemberSymbol.ContainingNamespace};");
+        classBuilder.AppendLine($"namespace {@notifyPropertyChangedSymbol.ContainingNamespace.ToDisplayString()}");
+        classBuilder.AppendLine("{");
 
         foreach (var field in fields)
         {
@@ -125,9 +141,11 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             classBuilder.AppendLine($"event ContextChangedEventHandler<{fullyQualifiedFieldType}> On{simpleFieldType}ContextChangeEvent;");
             classBuilder.AppendLine($"void On{simpleFieldType}ContextChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, [CallerMemberName] string propertyName = null);");
             classBuilder.AppendLine("}");
-
-            yield return interfaceName;
         }
+
+        classBuilder.AppendLine("}");
+
+        return classBuilder.ToString();
     }
 
     private static string GetFullyQualifiedFieldType(IFieldSymbol field)
