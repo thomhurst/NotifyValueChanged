@@ -76,7 +76,7 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             classBuilder.AppendLine("}");
             classBuilder.AppendLine("}");
             
-            classBuilder.AppendLine(GenerateContextChangeImplementation(propertyName, fullyQualifiedFieldType));
+            classBuilder.AppendLine(GenerateContextChangeImplementation(propertyName, fullyQualifiedFieldType, field));
         }
         
         WriteInterfaceImplementations(classBuilder, fields);
@@ -86,7 +86,6 @@ public class NotifyContextChangeGenerator : ISourceGenerator
 
         return classBuilder.ToString();
     }
-
     private void WriteInterfaceImplementations(StringBuilder classBuilder, List<IFieldSymbol> fields)
     {
         List<string> fullyQualifiedTypesWritten = new();
@@ -122,7 +121,7 @@ public class NotifyContextChangeGenerator : ISourceGenerator
         classBuilder.AppendLine("using System;");
         classBuilder.AppendLine($"using {notifyPropertyChangedSymbol.ContainingNamespace};");
         classBuilder.AppendLine($"using {callerMemberSymbol.ContainingNamespace};");
-        classBuilder.AppendLine($"namespace {@notifyPropertyChangedSymbol.ContainingNamespace.ToDisplayString()}");
+        classBuilder.AppendLine($"namespace {notifyPropertyChangedSymbol.ContainingNamespace.ToDisplayString()}");
         classBuilder.AppendLine("{");
 
         foreach (var field in fields)
@@ -153,12 +152,17 @@ public class NotifyContextChangeGenerator : ISourceGenerator
 
     private static string GetFullyQualifiedFieldType(IFieldSymbol field)
     {
-        return field.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).Replace("?", string.Empty);
+        return field.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
     }
 
     private static string GetSimpleFieldTypeName(IFieldSymbol field)
     {
         var simpleFieldName = GetFullyQualifiedFieldType(field).Split('.').Last();
+
+        if (field.Type.NullableAnnotation == NullableAnnotation.Annotated)
+        {
+            return $"Nullable{simpleFieldName.CapitalizeFirstLetter()}".Replace("?", string.Empty);
+        }
 
         return simpleFieldName.CapitalizeFirstLetter();
     }
@@ -168,7 +172,7 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             return m.ToString().TrimStart('_').ToUpper();
         });
     }
-    private string GenerateContextChangeImplementation(string propertyName, string fieldType)
+    private string GenerateContextChangeImplementation(string propertyName, string fieldType, IFieldSymbol field)
     {
         return $@"
         public event ContextChangedEventHandler<{fieldType}> On{propertyName}ContextChange;
