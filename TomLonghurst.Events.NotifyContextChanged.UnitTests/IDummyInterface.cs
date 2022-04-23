@@ -2,5 +2,5 @@
 
 public interface IDummyInterface
 {
-    void DoSomething();
+    void TwoStrings(string? one, string? two);
 }
