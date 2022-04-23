@@ -51,7 +51,7 @@ public class NotifyContextChangeGenerator : ISourceGenerator
         classBuilder.AppendLine($"public partial class {@class.Name}");
         classBuilder.AppendLine(":");
         
-        var commaSeparatedListOfInterfaces = fields.Select(x => GetSimpleFieldTypeName(x)).Select(simpleFieldType => $"INotify{simpleFieldType}ContextChanged").Distinct().Aggregate((a, x) => $"{a}, {x}");
+        var commaSeparatedListOfInterfaces = fields.Select(GetSimpleFieldTypeName).Select(simpleFieldType => $"INotifyType{simpleFieldType}ContextChanged").Distinct().Aggregate((a, x) => $"{a}, {x}");
         classBuilder.AppendLine(commaSeparatedListOfInterfaces); 
         classBuilder.AppendLine("{");
 
@@ -72,7 +72,7 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             classBuilder.AppendLine($"var previousValue = {fieldName};");
             classBuilder.AppendLine($"{fieldName} = value;");
             classBuilder.AppendLine($"Notify{propertyName}ContextChanged(previousValue, value);");
-            classBuilder.AppendLine($"On{simpleFieldType}ContextChanged(previousValue, value);");
+            classBuilder.AppendLine($"OnType{simpleFieldType}ContextChanged(previousValue, value);");
             classBuilder.AppendLine("}");
             classBuilder.AppendLine("}");
             
@@ -101,10 +101,10 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             
             fullyQualifiedTypesWritten.Add(fullyQualifiedFieldType);
             
-            classBuilder.AppendLine($"public event ContextChangedEventHandler<{fullyQualifiedFieldType}> On{simpleFieldType}ContextChangeEvent;");
-            classBuilder.AppendLine($"private void On{simpleFieldType}ContextChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, [CallerMemberName] string propertyName = null)");
+            classBuilder.AppendLine($"public event ContextChangedEventHandler<{fullyQualifiedFieldType}> OnType{simpleFieldType}ContextChangeEvent;");
+            classBuilder.AppendLine($"private void OnType{simpleFieldType}ContextChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, [CallerMemberName] string propertyName = null)");
             classBuilder.AppendLine("{");
-            classBuilder.AppendLine($"On{simpleFieldType}ContextChangeEvent?.Invoke(this, new ContextChangedEventArgs<{fullyQualifiedFieldType}>(propertyName, previousValue, newValue));");
+            classBuilder.AppendLine($"OnType{simpleFieldType}ContextChangeEvent?.Invoke(this, new ContextChangedEventArgs<{fullyQualifiedFieldType}>(propertyName, previousValue, newValue));");
             classBuilder.AppendLine("}");
         }
     }
@@ -129,7 +129,7 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             var fullyQualifiedFieldType = GetFullyQualifiedFieldType(field);
             var simpleFieldType = GetSimpleFieldTypeName(field);
 
-            var interfaceName = $"INotify{simpleFieldType}ContextChanged";
+            var interfaceName = $"INotifyType{simpleFieldType}ContextChanged";
             
             if (interfacesCreated.Contains(interfaceName))
             {
@@ -140,8 +140,8 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             
             classBuilder.AppendLine($"public interface {interfaceName}");
             classBuilder.AppendLine("{");
-            classBuilder.AppendLine($"event ContextChangedEventHandler<{fullyQualifiedFieldType}> On{simpleFieldType}ContextChangeEvent;");
-            //classBuilder.AppendLine($"void On{simpleFieldType}ContextChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, [CallerMemberName] string propertyName = null);");
+            classBuilder.AppendLine($"event ContextChangedEventHandler<{fullyQualifiedFieldType}> OnType{simpleFieldType}ContextChangeEvent;");
+            //classBuilder.AppendLine($"void OnType{simpleFieldType}ContextChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, [CallerMemberName] string propertyName = null);");
             classBuilder.AppendLine("}");
         }
 

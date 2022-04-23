@@ -89,7 +89,7 @@ public class Tests
     [Test]
     public void When_Value_Changes_Then_Invoke_Generic_Type_Event()
     {
-        _myClass.OnStringContextChangeEvent += (sender, args) =>
+        _myClass.OnTypeStringContextChangeEvent += (sender, args) =>
         {
             _dummyInterface.Object.TwoStrings(args.PreviousContext, args.NewContext);
         };
