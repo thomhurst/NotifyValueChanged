@@ -21,10 +21,10 @@ public class Tests
     {
         _myClass.OnMyString1ContextChange += (sender, args) =>
         {
-            _dummyInterface.Object.TwoStrings(args.PreviousContext, args.NewContext);
+            _dummyInterface.Object.TwoStrings(args.PreviousContext, args.NewContext, args.PropertyName);
         };
         
-        _dummyInterface.Verify(x => x.TwoStrings(It.IsAny<string?>(), It.IsAny<string?>()), Times.Never);
+        _dummyInterface.Verify(x => x.TwoStrings(It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<string>()), Times.Never);
     }
     
     [Test]
@@ -32,12 +32,12 @@ public class Tests
     {
         _myClass.OnMyString1ContextChange += (sender, args) =>
         {
-            _dummyInterface.Object.TwoStrings(args.PreviousContext, args.NewContext);
+            _dummyInterface.Object.TwoStrings(args.PreviousContext, args.NewContext, args.PropertyName);
         };
 
         _myClass.MyString1 = "Hi";
         
-        _dummyInterface.Verify(x => x.TwoStrings(null, "Hi"), Times.Once);
+        _dummyInterface.Verify(x => x.TwoStrings(null, "Hi", nameof(MyClass.MyString1)), Times.Once);
     }
     
     [Test]
@@ -45,12 +45,12 @@ public class Tests
     {
         _myClass.OnMyString1ContextChange += (sender, args) =>
         {
-            _dummyInterface.Object.TwoStrings(args.PreviousContext, args.NewContext);
+            _dummyInterface.Object.TwoStrings(args.PreviousContext, args.NewContext, args.PropertyName);
         };
 
         _myClass.MyString2 = "Hi";
         
-        _dummyInterface.Verify(x => x.TwoStrings(It.IsAny<string?>(), It.IsAny<string?>()), Times.Never);
+        _dummyInterface.Verify(x => x.TwoStrings(It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<string>()), Times.Never);
     }
     
     [Test]
@@ -58,7 +58,7 @@ public class Tests
     {
         _myClass.OnMyString1ContextChange += (sender, args) =>
         {
-            _dummyInterface.Object.TwoStrings(args.PreviousContext, args.NewContext);
+            _dummyInterface.Object.TwoStrings(args.PreviousContext, args.NewContext, args.PropertyName);
         };
 
         for (int i = 0; i < 100; i++)
@@ -66,7 +66,7 @@ public class Tests
             _myClass.MyString1 = i.ToString();
         }
 
-        _dummyInterface.Verify(x => x.TwoStrings(It.IsAny<string?>(), It.IsAny<string?>()), Times.Exactly(100));
+        _dummyInterface.Verify(x => x.TwoStrings(It.IsAny<string?>(), It.IsAny<string?>(), nameof(MyClass.MyString1)), Times.Exactly(100));
     }
     
     [Test]
@@ -74,7 +74,7 @@ public class Tests
     {
         _myClass.OnMyString1ContextChange += (sender, args) =>
         {
-            _dummyInterface.Object.TwoStrings(args.PreviousContext, args.NewContext);
+            _dummyInterface.Object.TwoStrings(args.PreviousContext, args.NewContext, args.PropertyName);
         };
 
         for (int i = 0; i < 100; i++)
@@ -82,8 +82,8 @@ public class Tests
             _myClass.MyString1 = "Hi";
         }
 
-        _dummyInterface.Verify(x => x.TwoStrings(null, "Hi"), Times.Once);
-        _dummyInterface.Verify(x => x.TwoStrings("Hi", "Hi"), Times.Never);
+        _dummyInterface.Verify(x => x.TwoStrings(null, "Hi", nameof(MyClass.MyString1)), Times.Once);
+        _dummyInterface.Verify(x => x.TwoStrings("Hi", "Hi", nameof(MyClass.MyString1)), Times.Never);
     }
     
     [Test]
@@ -91,13 +91,13 @@ public class Tests
     {
         _myClass.OnTypeStringContextChangeEvent += (sender, args) =>
         {
-            _dummyInterface.Object.TwoStrings(args.PreviousContext, args.NewContext);
+            _dummyInterface.Object.TwoStrings(args.PreviousContext, args.NewContext, args.PropertyName);
         };
 
         _myClass.MyString1 = "Hi";
         _myClass.MyString2 = "Hello";
         
-        _dummyInterface.Verify(x => x.TwoStrings(null, "Hi"), Times.Once);
-        _dummyInterface.Verify(x => x.TwoStrings(null, "Hello"), Times.Once);
+        _dummyInterface.Verify(x => x.TwoStrings(null, "Hi", nameof(MyClass.MyString1)), Times.Once);
+        _dummyInterface.Verify(x => x.TwoStrings(null, "Hello", nameof(MyClass.MyString2)), Times.Once);
     }
 }
