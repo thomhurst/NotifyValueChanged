@@ -3,12 +3,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
+using TomLonghurst.Events.NotifyContextChanged.Extensions;
 
 namespace TomLonghurst.Events.NotifyContextChanged.SourceGeneration;
 
 [Generator]
 public class NotifyContextChangeGenerator : ISourceGenerator
-{
+{ 
     public void Initialize(GeneratorInitializationContext context)
     {
         context.RegisterForSyntaxNotifications(() => new FieldSyntaxReciever());
@@ -34,7 +35,6 @@ public class NotifyContextChangeGenerator : ISourceGenerator
 
         var interfaceSource = WriteInterfaces(context, fieldsThatNeedInterfacesGenerating);
         context.AddSource($"INotifyContextChangedInterfaces_NotifyContextChanged.generated", SourceText.From(interfaceSource, Encoding.UTF8));
-
     }
     
     private string GenerateClass(GeneratorExecutionContext context, INamedTypeSymbol @class, INamespaceSymbol @namespace, List<IFieldSymbol> fields) {
@@ -51,12 +51,13 @@ public class NotifyContextChangeGenerator : ISourceGenerator
         classBuilder.AppendLine($"public partial class {@class.Name}");
         classBuilder.AppendLine(":");
         
-        var commaSeparatedListOfInterfaces = fields.Select(GetFullyQualifiedFieldType).Select(x => x.Split('.').Last()).Select(simpleFieldType => $"INotify{simpleFieldType}ContextChanged").Aggregate((a, x) => $"{a}, {x}");
+        var commaSeparatedListOfInterfaces = fields.Select(x => GetSimpleFieldTypeName(x)).Select(simpleFieldType => $"INotify{simpleFieldType}ContextChanged").Distinct().Aggregate((a, x) => $"{a}, {x}");
         classBuilder.AppendLine(commaSeparatedListOfInterfaces); 
         classBuilder.AppendLine("{");
 
         foreach(var field in fields) {
             var fullyQualifiedFieldType = GetFullyQualifiedFieldType(field);
+            var simpleFieldType = GetSimpleFieldTypeName(field);
             var fieldName = field.Name;
             var propertyName = NormalizePropertyName(fieldName);
             classBuilder.AppendLine($"public {fullyQualifiedFieldType} {propertyName}");
@@ -71,7 +72,7 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             classBuilder.AppendLine($"var previousValue = {fieldName};");
             classBuilder.AppendLine($"{fieldName} = value;");
             classBuilder.AppendLine($"Notify{propertyName}ContextChanged(previousValue, value);");
-            classBuilder.AppendLine($"On{field.Type.Name}ContextChanged(previousValue, value);");
+            classBuilder.AppendLine($"On{simpleFieldType}ContextChanged(previousValue, value);");
             classBuilder.AppendLine("}");
             classBuilder.AppendLine("}");
             
@@ -93,7 +94,7 @@ public class NotifyContextChangeGenerator : ISourceGenerator
         foreach (var field in fields)
         {
             var fullyQualifiedFieldType = GetFullyQualifiedFieldType(field);
-            var simpleFieldType = field.Type.Name;
+            var simpleFieldType = GetSimpleFieldTypeName(field);
             if (fullyQualifiedTypesWritten.Contains(fullyQualifiedFieldType))
             {
                 continue;
@@ -102,7 +103,7 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             fullyQualifiedTypesWritten.Add(fullyQualifiedFieldType);
             
             classBuilder.AppendLine($"public event ContextChangedEventHandler<{fullyQualifiedFieldType}> On{simpleFieldType}ContextChangeEvent;");
-            classBuilder.AppendLine($"public void On{simpleFieldType}ContextChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, [CallerMemberName] string propertyName = null)");
+            classBuilder.AppendLine($"private void On{simpleFieldType}ContextChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, [CallerMemberName] string propertyName = null)");
             classBuilder.AppendLine("{");
             classBuilder.AppendLine($"On{simpleFieldType}ContextChangeEvent?.Invoke(this, new ContextChangedEventArgs<{fullyQualifiedFieldType}>(propertyName, previousValue, newValue));");
             classBuilder.AppendLine("}");
@@ -111,9 +112,9 @@ public class NotifyContextChangeGenerator : ISourceGenerator
 
     private static string WriteInterfaces(GeneratorExecutionContext context,
         List<IFieldSymbol> fields)
-    {
-        List<string> fullyQualifiedTypesWritten = new();
-        
+    { 
+        var interfacesCreated = new List<string>();
+    
         var classBuilder = new StringBuilder();
         var notifyPropertyChangedSymbol = context.Compilation.GetTypeByMetadataName(typeof(INotifyContextChanged<>).FullName);
         var callerMemberSymbol = context.Compilation.GetTypeByMetadataName("System.Runtime.CompilerServices.CallerMemberNameAttribute");
@@ -127,19 +128,21 @@ public class NotifyContextChangeGenerator : ISourceGenerator
         foreach (var field in fields)
         {
             var fullyQualifiedFieldType = GetFullyQualifiedFieldType(field);
-            var simpleFieldType = field.Type.Name;
-            if (fullyQualifiedTypesWritten.Contains(fullyQualifiedFieldType))
+            var simpleFieldType = GetSimpleFieldTypeName(field);
+
+            var interfaceName = $"INotify{simpleFieldType}ContextChanged";
+            
+            if (interfacesCreated.Contains(interfaceName))
             {
                 continue;
             }
             
-            fullyQualifiedTypesWritten.Add(fullyQualifiedFieldType);
-
-            var interfaceName = $"INotify{simpleFieldType}ContextChanged";
+            interfacesCreated.Add(interfaceName);
+            
             classBuilder.AppendLine($"public interface {interfaceName}");
             classBuilder.AppendLine("{");
             classBuilder.AppendLine($"event ContextChangedEventHandler<{fullyQualifiedFieldType}> On{simpleFieldType}ContextChangeEvent;");
-            classBuilder.AppendLine($"void On{simpleFieldType}ContextChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, [CallerMemberName] string propertyName = null);");
+            //classBuilder.AppendLine($"void On{simpleFieldType}ContextChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, [CallerMemberName] string propertyName = null);");
             classBuilder.AppendLine("}");
         }
 
@@ -150,7 +153,14 @@ public class NotifyContextChangeGenerator : ISourceGenerator
 
     private static string GetFullyQualifiedFieldType(IFieldSymbol field)
     {
-        return $"{field.Type.ContainingNamespace.ToDisplayString()}.{field.Type.Name}";
+        return field.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).Replace("?", string.Empty);
+    }
+
+    private static string GetSimpleFieldTypeName(IFieldSymbol field)
+    {
+        var simpleFieldName = GetFullyQualifiedFieldType(field).Split('.').Last();
+
+        return simpleFieldName.CapitalizeFirstLetter();
     }
 
     private string NormalizePropertyName(string fieldName) {
@@ -163,7 +173,7 @@ public class NotifyContextChangeGenerator : ISourceGenerator
         return $@"
         public event ContextChangedEventHandler<{fieldType}> On{propertyName}ContextChange;
         
-        public void Notify{propertyName}ContextChanged({fieldType} previousValue, {fieldType} newValue, [CallerMemberName] string propertyName = """") 
+        private void Notify{propertyName}ContextChanged({fieldType} previousValue, {fieldType} newValue, [CallerMemberName] string propertyName = """") 
         {{
             On{propertyName}ContextChange?.Invoke(this, new ContextChangedEventArgs<{fieldType}>(propertyName, previousValue, newValue));
         }}

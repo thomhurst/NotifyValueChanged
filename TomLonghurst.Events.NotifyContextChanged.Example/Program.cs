@@ -15,4 +15,3 @@ myClass.OnMyNameContextChange += (sender, eventArgs) =>
 myClass.MyName = "Tom";
 myClass.MyName = "Tom Longhurst";
 myClass.MyName = null;
-
