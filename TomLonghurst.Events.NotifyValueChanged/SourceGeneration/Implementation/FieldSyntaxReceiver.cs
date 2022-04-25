@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation;
 
-internal class FieldSyntaxReciever : ISyntaxContextReceiver
+internal class FieldSyntaxReceiver : ISyntaxContextReceiver
 {
     public List<IFieldSymbol> IdentifiedFields { get; } = new();
 

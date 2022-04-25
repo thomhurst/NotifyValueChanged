@@ -13,12 +13,12 @@ public class NotifyValueChangeGenerator : ISourceGenerator
 { 
     public void Initialize(GeneratorInitializationContext context)
     {
-        context.RegisterForSyntaxNotifications(() => new FieldSyntaxReciever());
+        context.RegisterForSyntaxNotifications(() => new FieldSyntaxReceiver());
     }
 
     public void Execute(GeneratorExecutionContext context)
     {
-        if (context.SyntaxContextReceiver is not FieldSyntaxReciever syntaxReciever)
+        if (context.SyntaxContextReceiver is not FieldSyntaxReceiver syntaxReciever)
         {
             return;
         }
