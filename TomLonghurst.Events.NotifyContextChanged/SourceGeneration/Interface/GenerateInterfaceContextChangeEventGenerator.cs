@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Text;
 namespace TomLonghurst.Events.NotifyContextChanged.SourceGeneration.Interface;
 
 [Generator]
-public class GenerateContextChangeEventForInterfaceGenerator : ISourceGenerator
+public class GenerateInterfaceContextChangeEventGenerator : ISourceGenerator
 {
     public void Initialize(GeneratorInitializationContext context)
     {
