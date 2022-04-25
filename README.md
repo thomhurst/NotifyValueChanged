@@ -18,9 +18,9 @@ Install via Nuget
 `Install-Package TomLonghurst.Events.NotifyValueChanged`
 
 ## Usage
-Make your class `partial`
-Declare a `private` *field* - This is the backing field for which the property will be generated for.
-Add the `[NotifyValueChange]` attribute to the field
+- Make your class `partial` 
+- Declare a `private` *field* - This is the backing field for which the property will be generated for.
+- Add the `[NotifyValueChange]` attribute to the field
 ```csharp
 public partial class Person
 {
@@ -47,9 +47,9 @@ person.Name = ""; // Event will fire and log to the console "Name was: 'Tom' and
 ```
 
 If your class implements an interface and you want this event to be exposed on the interface, then:
-Make your interface partial
-Declare the property on the interface as normal
-Add the attribute `[GenerateInterfaceValueChangeEvent`]
+- Make your interface partial
+- Declare the property on the interface as normal
+- Add the attribute `[GenerateInterfaceValueChangeEvent`]
 
 ```csharp
 public partial interface IPerson
