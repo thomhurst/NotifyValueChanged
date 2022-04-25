@@ -89,7 +89,7 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             classBuilder.AppendLine("\t\t}");
             classBuilder.AppendLine();
             
-            classBuilder.AppendLine(GenerateClassContextChangeImplementation(propertyName, fullyQualifiedFieldType, field));
+            classBuilder.AppendLine(GenerateClassContextChangeImplementation(propertyName, fullyQualifiedFieldType));
         }
         
         WriteInterfaceImplementations(classBuilder, fields);
@@ -207,11 +207,9 @@ public class NotifyContextChangeGenerator : ISourceGenerator
     }
 
     private string NormalizePropertyName(string fieldName) {
-        return Regex.Replace(fieldName, "_[a-z]", delegate(Match m) {
-            return m.ToString().TrimStart('_').ToUpper();
-        });
+        return Regex.Replace(fieldName, "_[a-z]", m => m.ToString().TrimStart('_').ToUpper());
     }
-    private string GenerateClassContextChangeImplementation(string propertyName, string fieldType, IFieldSymbol field)
+    private string GenerateClassContextChangeImplementation(string propertyName, string fieldType)
     {
         return $@"
         public event ContextChangedEventHandler<{fieldType}> On{propertyName}ContextChange;
