@@ -1,4 +1,6 @@
-﻿namespace TomLonghurst.Events.NotifyValueChanged.Extensions;
+﻿using System.Globalization;
+
+namespace TomLonghurst.Events.NotifyValueChanged.Extensions;
 
 internal static class StringExtensions
 {
@@ -16,9 +18,9 @@ internal static class StringExtensions
 
         if (s.Length == 1)
         {
-            return s.ToUpper();
+            return s.ToUpper(CultureInfo.CurrentCulture);
         }
 
-        return s.Remove(1).ToUpper() + s.Substring(1);
+        return s.Remove(1).ToUpper(CultureInfo.CurrentCulture) + s.Substring(1);
     }
 }
