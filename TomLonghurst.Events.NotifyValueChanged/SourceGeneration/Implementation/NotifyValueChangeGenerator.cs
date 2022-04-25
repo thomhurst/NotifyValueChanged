@@ -112,7 +112,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
                 continue;
             }
             
-            var fullyQualifiedFieldType = field.Type.GetFullyQualifiedType();;
+            var fullyQualifiedFieldType = field.Type.GetFullyQualifiedType();
             var simpleFieldType = field.Type.GetSimpleTypeName();
 
             var interfaceName = $"INotifyType{simpleFieldType}ValueChanged";
@@ -181,7 +181,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
                 continue;
             }
             
-            var fullyQualifiedFieldType = field.Type.GetFullyQualifiedType();;
+            var fullyQualifiedFieldType = field.Type.GetFullyQualifiedType();
             var simpleFieldType = field.Type.GetSimpleTypeName();
 
             var interfaceName = $"INotifyType{simpleFieldType}ValueChanged";
