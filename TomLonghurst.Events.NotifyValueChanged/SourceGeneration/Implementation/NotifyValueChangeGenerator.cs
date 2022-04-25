@@ -42,7 +42,6 @@ public class NotifyValueChangeGenerator : ISourceGenerator
     private string GenerateClass(GeneratorExecutionContext context, INamedTypeSymbol @class, INamespaceSymbol @namespace, List<IFieldSymbol> fields) {
         var classBuilder = new StringBuilder();
         classBuilder.AppendLine("using System;");
-        classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(INotifyValueChanged<>)));
         classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventArgs<>)));
         classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventHandler<>)));
         classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(CallerMemberNameAttribute)));
@@ -164,10 +163,10 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         var interfacesCreated = new List<string>();
     
         var classBuilder = new StringBuilder();
-        var notifyPropertyChangedSymbol = context.Compilation.GetTypeByMetadataName(typeof(INotifyValueChanged<>).FullName);
+        var notifyPropertyChangedSymbol = context.Compilation.GetTypeByMetadataName(typeof(ValueChangedEventHandler<>).FullName);
 
         classBuilder.AppendLine("using System;");
-        classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(INotifyValueChanged<>)));
+        classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventHandler<>)));
         classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(CallerMemberNameAttribute)));
         classBuilder.AppendLine($"namespace {notifyPropertyChangedSymbol.ContainingNamespace.ToDisplayString()}");
         classBuilder.AppendLine("{");

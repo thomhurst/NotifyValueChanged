@@ -39,7 +39,6 @@ public class GenerateInterfaceValueChangeEventGenerator : ISourceGenerator
         var classBuilder = new StringBuilder();
 
         classBuilder.AppendLine("using System;");
-        classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(INotifyValueChanged<>)));
         classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventArgs<>)));
         classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventHandler<>)));
         classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(CallerMemberNameAttribute)));
