@@ -9,16 +9,17 @@ internal class FieldSyntaxReciever : ISyntaxContextReceiver
 
     public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
     {
-        if (context.Node is FieldDeclarationSyntax fieldDeclaration && fieldDeclaration.AttributeLists.Any())
+        if (context.Node is not FieldDeclarationSyntax fieldDeclaration || !fieldDeclaration.AttributeLists.Any())
         {
-            var variableDeclaration = fieldDeclaration.Declaration.Variables;
-            foreach(var variable in variableDeclaration)
+            return;
+        }
+
+        var variableDeclaration = fieldDeclaration.Declaration.Variables;
+        foreach (var field in variableDeclaration.Select(variable => context.SemanticModel.GetDeclaredSymbol(variable)))
+        {
+            if (field is IFieldSymbol fieldInfo && fieldInfo.GetAttributes().Any(x=> x.AttributeClass.ToDisplayString() == typeof(NotifyValueChangeAttribute).FullName))
             {
-                var field = context.SemanticModel.GetDeclaredSymbol(variable);
-                if (field is IFieldSymbol fieldInfo && fieldInfo.GetAttributes().Any(x=> x.AttributeClass.ToDisplayString() == typeof(NotifyValueChangeAttribute).FullName))
-                {
-                    IdentifiedFields.Add(fieldInfo);
-                }
+                IdentifiedFields.Add(fieldInfo);
             }
         }
     }

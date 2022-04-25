@@ -9,14 +9,17 @@ internal class PropertySyntaxReceiver : ISyntaxContextReceiver
 
     public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
     {
-        if (context.Node is PropertyDeclarationSyntax propertyDeclaration && propertyDeclaration.AttributeLists.Any())
+        if (context.Node is not PropertyDeclarationSyntax propertyDeclaration || !propertyDeclaration.AttributeLists.Any())
         {
-            var property = context.SemanticModel.GetDeclaredSymbol(propertyDeclaration);
+            return;
+        }
+
+        var property = context.SemanticModel.GetDeclaredSymbol(propertyDeclaration);
  
-            if(property is IPropertySymbol propertySymbol && property.GetAttributes().Any(x=>x.AttributeClass.ToDisplayString() == typeof(GenerateInterfaceValueChangeEventAttribute).FullName))
-            {
-                IdentifiedProperties.Add(propertySymbol);
-            }
+        if(property is IPropertySymbol propertySymbol 
+           && property.GetAttributes().Any(x => x.AttributeClass.ToDisplayString() == typeof(GenerateInterfaceValueChangeEventAttribute).FullName))
+        {
+            IdentifiedProperties.Add(propertySymbol);
         }
     }
 }
