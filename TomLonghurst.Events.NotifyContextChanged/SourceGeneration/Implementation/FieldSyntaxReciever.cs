@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace TomLonghurst.Events.NotifyContextChanged.SourceGeneration;
+namespace TomLonghurst.Events.NotifyContextChanged.SourceGeneration.Implementation;
 
 internal class FieldSyntaxReciever : ISyntaxContextReceiver
 {
@@ -20,7 +20,6 @@ internal class FieldSyntaxReciever : ISyntaxContextReceiver
                     IdentifiedFields.Add(fieldInfo);
                 }
             }
-
         }
     }
 }

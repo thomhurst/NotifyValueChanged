@@ -1,11 +1,10 @@
-﻿using System.Diagnostics;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using TomLonghurst.Events.NotifyContextChanged.Extensions;
 
-namespace TomLonghurst.Events.NotifyContextChanged.SourceGeneration;
+namespace TomLonghurst.Events.NotifyContextChanged.SourceGeneration.Implementation;
 
 [Generator]
 public class NotifyContextChangeGenerator : ISourceGenerator
@@ -28,6 +27,7 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             var containingClass = containingClassGroup.Key;
             var namespaceSymbol = containingClass.ContainingNamespace;
             var fields = containingClassGroup.ToList();
+            
             var source = GenerateClass(context, containingClass, namespaceSymbol, fields);
             fieldsThatNeedInterfacesGenerating.AddRange(fields);
             context.AddSource($"{containingClass.Name}_NotifyContextChanged.generated", SourceText.From(source, Encoding.UTF8));
@@ -76,7 +76,7 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             classBuilder.AppendLine("}");
             classBuilder.AppendLine("}");
             
-            classBuilder.AppendLine(GenerateContextChangeImplementation(propertyName, fullyQualifiedFieldType, field));
+            classBuilder.AppendLine(GenerateClassContextChangeImplementation(propertyName, fullyQualifiedFieldType, field));
         }
         
         WriteInterfaceImplementations(classBuilder, fields);
@@ -172,7 +172,7 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             return m.ToString().TrimStart('_').ToUpper();
         });
     }
-    private string GenerateContextChangeImplementation(string propertyName, string fieldType, IFieldSymbol field)
+    private string GenerateClassContextChangeImplementation(string propertyName, string fieldType, IFieldSymbol field)
     {
         return $@"
         public event ContextChangedEventHandler<{fieldType}> On{propertyName}ContextChange;
@@ -182,5 +182,10 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             On{propertyName}ContextChange?.Invoke(this, new ContextChangedEventArgs<{fieldType}>(propertyName, previousValue, newValue));
         }}
         ";
+    }
+
+    private string GenerateInterfaceContextChangeImplementation(string propertyName, string fieldType, IFieldSymbol field)
+    {
+        return $"public event ContextChangedEventHandler<{fieldType}> On{propertyName}ContextChange;";
     }
 }

@@ -1,4 +1,5 @@
 ﻿using TomLonghurst.Events.NotifyContextChanged.SourceGeneration;
+using TomLonghurst.Events.NotifyContextChanged.SourceGeneration.Implementation;
 
 namespace TomLonghurst.Events.NotifyContextChanged.UnitTests;
 
