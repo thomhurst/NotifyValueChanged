@@ -35,4 +35,28 @@ public partial class MyClass
     
     [NotifyContextChange]
     private IEnumerable<string?>? _genericNullableEnumerableWithNullableTypeParameter;
+    
+    [NotifyContextChange]
+    private IDictionary<string, int> _genericWithTwoTypeParameters;
+    
+    [NotifyContextChange]
+    private IDictionary<string?, int> _genericWithTwoTypeParametersNullableFirstType;
+    
+    [NotifyContextChange]
+    private IDictionary<string, int?> _genericWithTwoTypeParametersNullableSecondType;
+    
+    [NotifyContextChange]
+    private IDictionary<string?, int?> _genericWithTwoTypeParametersNullableBothType;
+    
+    [NotifyContextChange]
+    private IDictionary<string, int>? _nullableGenericWithTwoTypeParameters;
+    
+    [NotifyContextChange]
+    private IDictionary<string?, int>? _nullableGenericWithTwoTypeParametersNullableFirstType;
+    
+    [NotifyContextChange]
+    private IDictionary<string, int?>? _nullableGenericWithTwoTypeParametersNullableSecondType;
+    
+    [NotifyContextChange]
+    private IDictionary<string?, int?>? _nullableGenericWithTwoTypeParametersNullableBothType;
 }
