@@ -1,7 +1,9 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using TomLonghurst.Events.NotifyContextChanged.Extensions;
+using TomLonghurst.Events.NotifyContextChanged.Helpers;
 
 namespace TomLonghurst.Events.NotifyContextChanged.SourceGeneration.Interface;
 
@@ -35,12 +37,13 @@ public class GenerateInterfaceContextChangeEventGenerator : ISourceGenerator
     
     private string GenerateInterface(GeneratorExecutionContext context, INamedTypeSymbol @interface, INamespaceSymbol @namespace, List<IPropertySymbol> properties) {
         var classBuilder = new StringBuilder();
-        var callerMemberSymbol = context.Compilation.GetTypeByMetadataName("System.Runtime.CompilerServices.CallerMemberNameAttribute");
-        var generateInterfaceContextChangeEventAttributeSymbol = context.Compilation.GetTypeByMetadataName(typeof(GenerateInterfaceContextChangeEventAttribute).FullName);
-        
+
         classBuilder.AppendLine("using System;");
-        classBuilder.AppendLine($"using {callerMemberSymbol.ContainingNamespace};");
-        classBuilder.AppendLine($"using {generateInterfaceContextChangeEventAttributeSymbol.ContainingNamespace};");
+        classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(INotifyContextChanged<>)));
+        classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(ContextChangedEventArgs<>)));
+        classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(ContextChangedEventHandler<>)));
+        classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(CallerMemberNameAttribute)));
+        classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(GenerateInterfaceContextChangeEventAttribute)));
         classBuilder.AppendLine($"namespace {@namespace.ToDisplayString()}");
         classBuilder.AppendLine("{");
         

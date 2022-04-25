@@ -1,9 +1,11 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using TomLonghurst.Events.NotifyContextChanged.Extensions;
+using TomLonghurst.Events.NotifyContextChanged.Helpers;
 
 namespace TomLonghurst.Events.NotifyContextChanged.SourceGeneration.Implementation;
 
@@ -40,12 +42,11 @@ public class NotifyContextChangeGenerator : ISourceGenerator
     
     private string GenerateClass(GeneratorExecutionContext context, INamedTypeSymbol @class, INamespaceSymbol @namespace, List<IFieldSymbol> fields) {
         var classBuilder = new StringBuilder();
-        var notifyPropertyChangedSymbol = context.Compilation.GetTypeByMetadataName(typeof(INotifyContextChanged<>).FullName);
-        var callerMemberSymbol = context.Compilation.GetTypeByMetadataName("System.Runtime.CompilerServices.CallerMemberNameAttribute");
-        
         classBuilder.AppendLine("using System;");
-        classBuilder.AppendLine($"using {notifyPropertyChangedSymbol.ContainingNamespace};");
-        classBuilder.AppendLine($"using {callerMemberSymbol.ContainingNamespace};");
+        classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(INotifyContextChanged<>)));
+        classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(ContextChangedEventArgs<>)));
+        classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(ContextChangedEventHandler<>)));
+        classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(CallerMemberNameAttribute)));
         classBuilder.AppendLine($"namespace {@namespace.ToDisplayString()}");
         classBuilder.AppendLine("{");
         
