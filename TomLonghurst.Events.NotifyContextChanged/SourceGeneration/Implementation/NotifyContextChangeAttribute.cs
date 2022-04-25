@@ -3,4 +3,5 @@
 [AttributeUsage(AttributeTargets.Field)]
 public class NotifyContextChangeAttribute : Attribute
 {
+    public bool GenerateGenericTypeContextChangeEvent { get; set; }
 }

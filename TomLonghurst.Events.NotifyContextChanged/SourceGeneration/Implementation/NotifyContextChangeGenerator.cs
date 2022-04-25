@@ -50,10 +50,16 @@ public class NotifyContextChangeGenerator : ISourceGenerator
         classBuilder.AppendLine("{");
         
         classBuilder.AppendLine($"public partial class {@class.Name}");
-        classBuilder.AppendLine(":");
         
-        var commaSeparatedListOfInterfaces = fields.Select(x => x.Type.GetSimpleTypeName()).Select(simpleFieldType => $"INotifyType{simpleFieldType}ContextChanged").Distinct().Aggregate((a, x) => $"{a}, {x}");
-        classBuilder.AppendLine(commaSeparatedListOfInterfaces); 
+        var listOfInterfaces = fields.Where(ShouldGenerateInterfaceImplementation).Select(x => x.Type.GetSimpleTypeName()).Select(simpleFieldType => $"INotifyType{simpleFieldType}ContextChanged").Distinct().ToList();
+
+        if (listOfInterfaces.Any())
+        {
+            classBuilder.AppendLine(":");
+            var commaSeparatedListOfInterfaces = listOfInterfaces.Aggregate((a, x) => $"{a}, {x}");
+            classBuilder.AppendLine(commaSeparatedListOfInterfaces); 
+        }
+        
         classBuilder.AppendLine("{");
 
         foreach(var field in fields) {
@@ -73,7 +79,12 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             classBuilder.AppendLine($"var previousValue = {fieldName};");
             classBuilder.AppendLine($"{fieldName} = value;");
             classBuilder.AppendLine($"Notify{propertyName}ContextChanged(previousValue, value);");
-            classBuilder.AppendLine($"OnType{simpleFieldType}ContextChanged(previousValue, value);");
+            
+            if (ShouldGenerateInterfaceImplementation(field))
+            {
+                classBuilder.AppendLine($"OnType{simpleFieldType}ContextChanged(previousValue, value);");
+            }
+
             classBuilder.AppendLine("}");
             classBuilder.AppendLine("}");
             
@@ -93,6 +104,13 @@ public class NotifyContextChangeGenerator : ISourceGenerator
 
         foreach (var field in fields)
         {
+            var shouldGenerateInterfaceImplementation = ShouldGenerateInterfaceImplementation(field);
+            
+            if (!shouldGenerateInterfaceImplementation)
+            {
+                continue;
+            }
+            
             var fullyQualifiedFieldType = field.Type.GetFullyQualifiedType();;
             var simpleFieldType = field.Type.GetSimpleTypeName();
 
@@ -113,6 +131,31 @@ public class NotifyContextChangeGenerator : ISourceGenerator
         }
     }
 
+    private static bool ShouldGenerateInterfaceImplementation(ISymbol symbol)
+    {
+        var attribute = symbol?.GetAttributes().FirstOrDefault(x => x.AttributeClass.ToDisplayString() == typeof(NotifyContextChangeAttribute).FullName);
+        if (attribute == null)
+        {
+            return false;
+        }
+
+        var shouldGenerateArgumentExists = attribute.NamedArguments.Any(x => string.Equals(x.Key, nameof(NotifyContextChangeAttribute.GenerateGenericTypeContextChangeEvent)));
+
+        if (!shouldGenerateArgumentExists)
+        {
+            return false;
+        }
+        
+        var shouldGenerateArgumentTypeConstant = attribute.NamedArguments.First(x => string.Equals(x.Key, nameof(NotifyContextChangeAttribute.GenerateGenericTypeContextChangeEvent)));
+
+        if (shouldGenerateArgumentTypeConstant.Value.Value is bool shouldGenerateArgument)
+        {
+            return shouldGenerateArgument;
+        }
+
+        return false;
+    }
+
     private static string WriteInterfaces(GeneratorExecutionContext context,
         List<IFieldSymbol> fields)
     { 
@@ -130,6 +173,13 @@ public class NotifyContextChangeGenerator : ISourceGenerator
 
         foreach (var field in fields)
         {
+            var shouldGenerateInterfaceImplementation = ShouldGenerateInterfaceImplementation(field);
+            
+            if (!shouldGenerateInterfaceImplementation)
+            {
+                continue;
+            }
+            
             var fullyQualifiedFieldType = field.Type.GetFullyQualifiedType();;
             var simpleFieldType = field.Type.GetSimpleTypeName();
 

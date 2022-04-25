@@ -6,7 +6,7 @@ namespace TomLonghurst.Events.NotifyContextChanged.UnitTests;
 
 public partial class MyClass
 {
-    [NotifyContextChange]
+    [NotifyContextChange(GenerateGenericTypeContextChangeEvent = true)]
     private string _myString1;
     
     [NotifyContextChange]
