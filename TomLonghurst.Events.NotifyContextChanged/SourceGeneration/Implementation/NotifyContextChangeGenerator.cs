@@ -49,51 +49,52 @@ public class NotifyContextChangeGenerator : ISourceGenerator
         classBuilder.AppendLine($"namespace {@namespace.ToDisplayString()}");
         classBuilder.AppendLine("{");
         
-        classBuilder.AppendLine($"public partial class {@class.Name}");
+        classBuilder.AppendLine($"\tpublic partial class {@class.Name}");
         
         var listOfInterfaces = fields.Where(ShouldGenerateInterfaceImplementation).Select(x => x.Type.GetSimpleTypeName()).Select(simpleFieldType => $"INotifyType{simpleFieldType}ContextChanged").Distinct().ToList();
 
         if (listOfInterfaces.Any())
         {
-            classBuilder.AppendLine(":");
+            classBuilder.AppendLine("\t:");
             var commaSeparatedListOfInterfaces = listOfInterfaces.Aggregate((a, x) => $"{a}, {x}");
-            classBuilder.AppendLine(commaSeparatedListOfInterfaces); 
+            classBuilder.AppendLine($"\t{commaSeparatedListOfInterfaces}"); 
         }
         
-        classBuilder.AppendLine("{");
+        classBuilder.AppendLine("\t{");
 
         foreach(var field in fields) {
             var fullyQualifiedFieldType = field.Type.GetFullyQualifiedType();
             var simpleFieldType = field.Type.GetSimpleTypeName();
             var fieldName = field.Name;
             var propertyName = NormalizePropertyName(fieldName);
-            classBuilder.AppendLine($"public {fullyQualifiedFieldType} {propertyName}");
-            classBuilder.AppendLine("{");
-            classBuilder.AppendLine($"get => {fieldName};");
-            classBuilder.AppendLine("set");
-            classBuilder.AppendLine("{");
-            classBuilder.AppendLine($"if({fieldName} == value)");
-            classBuilder.AppendLine("{");
-            classBuilder.AppendLine("\treturn;");
-            classBuilder.AppendLine("}");
-            classBuilder.AppendLine($"var previousValue = {fieldName};");
-            classBuilder.AppendLine($"{fieldName} = value;");
-            classBuilder.AppendLine($"Notify{propertyName}ContextChanged(previousValue, value);");
+            classBuilder.AppendLine($"\t\tpublic {fullyQualifiedFieldType} {propertyName}");
+            classBuilder.AppendLine("\t\t{");
+            classBuilder.AppendLine($"\t\t\tget => {fieldName};");
+            classBuilder.AppendLine("\t\t\tset");
+            classBuilder.AppendLine("\t\t\t{");
+            classBuilder.AppendLine($"\t\t\t\tif({fieldName} == value)");
+            classBuilder.AppendLine("\t\t\t\t{");
+            classBuilder.AppendLine("\t\t\t\t\treturn;");
+            classBuilder.AppendLine("\t\t\t\t}");
+            classBuilder.AppendLine($"\t\t\t\tvar previousValue = {fieldName};");
+            classBuilder.AppendLine($"\t\t\t\t{fieldName} = value;");
+            classBuilder.AppendLine($"\t\t\t\tNotify{propertyName}ContextChanged(previousValue, value);");
             
             if (ShouldGenerateInterfaceImplementation(field))
             {
-                classBuilder.AppendLine($"OnType{simpleFieldType}ContextChanged(previousValue, value);");
+                classBuilder.AppendLine($"\t\t\t\tOnType{simpleFieldType}ContextChanged(previousValue, value);");
             }
 
-            classBuilder.AppendLine("}");
-            classBuilder.AppendLine("}");
+            classBuilder.AppendLine("\t\t\t}");
+            classBuilder.AppendLine("\t\t}");
+            classBuilder.AppendLine();
             
             classBuilder.AppendLine(GenerateClassContextChangeImplementation(propertyName, fullyQualifiedFieldType, field));
         }
         
         WriteInterfaceImplementations(classBuilder, fields);
         
-        classBuilder.AppendLine("}");
+        classBuilder.AppendLine("\t}");
         classBuilder.AppendLine("}");
         
         return classBuilder.ToString();
@@ -123,11 +124,12 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             
             interfacesCreated.Add(interfaceName);
             
-            classBuilder.AppendLine($"public event ContextChangedEventHandler<{fullyQualifiedFieldType}> OnType{simpleFieldType}ContextChange;");
-            classBuilder.AppendLine($"private void OnType{simpleFieldType}ContextChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, [CallerMemberName] string propertyName = null)");
-            classBuilder.AppendLine("{");
-            classBuilder.AppendLine($"OnType{simpleFieldType}ContextChange?.Invoke(this, new ContextChangedEventArgs<{fullyQualifiedFieldType}>(propertyName, previousValue, newValue));");
-            classBuilder.AppendLine("}");
+            classBuilder.AppendLine($"\t\tpublic event ContextChangedEventHandler<{fullyQualifiedFieldType}> OnType{simpleFieldType}ContextChange;");
+            classBuilder.AppendLine($"\t\tprivate void OnType{simpleFieldType}ContextChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, [CallerMemberName] string propertyName = null)");
+            classBuilder.AppendLine("\t\t{");
+            classBuilder.AppendLine($"\t\t\tOnType{simpleFieldType}ContextChange?.Invoke(this, new ContextChangedEventArgs<{fullyQualifiedFieldType}>(propertyName, previousValue, newValue));");
+            classBuilder.AppendLine("\t\t}");
+            classBuilder.AppendLine();
         }
     }
 
@@ -192,10 +194,11 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             
             interfacesCreated.Add(interfaceName);
             
-            classBuilder.AppendLine($"public interface {interfaceName}");
-            classBuilder.AppendLine("{");
-            classBuilder.AppendLine($"event ContextChangedEventHandler<{fullyQualifiedFieldType}> OnType{simpleFieldType}ContextChange;");
-            classBuilder.AppendLine("}");
+            classBuilder.AppendLine($"\tpublic interface {interfaceName}");
+            classBuilder.AppendLine("\t{");
+            classBuilder.AppendLine($"\t\tevent ContextChangedEventHandler<{fullyQualifiedFieldType}> OnType{simpleFieldType}ContextChange;");
+            classBuilder.AppendLine("\t}");
+            classBuilder.AppendLine();
         }
 
         classBuilder.AppendLine("}");

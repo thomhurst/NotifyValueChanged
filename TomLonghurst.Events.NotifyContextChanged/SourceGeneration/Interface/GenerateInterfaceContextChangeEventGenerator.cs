@@ -42,15 +42,16 @@ public class GenerateInterfaceContextChangeEventGenerator : ISourceGenerator
         classBuilder.AppendLine($"namespace {@namespace.ToDisplayString()}");
         classBuilder.AppendLine("{");
         
-        classBuilder.AppendLine($"public partial interface {@interface.Name}");
-        classBuilder.AppendLine("{");
+        classBuilder.AppendLine($"\tpublic partial interface {@interface.Name}");
+        classBuilder.AppendLine("\t{");
 
         foreach(var property in properties) {
             var fullyQualifiedFieldType = property.Type.GetFullyQualifiedType();
-            classBuilder.AppendLine($"public event ContextChangedEventHandler<{fullyQualifiedFieldType}> On{property.Name}ContextChange;");
+            classBuilder.AppendLine($"\t\tpublic event ContextChangedEventHandler<{fullyQualifiedFieldType}> On{property.Name}ContextChange;");
+            classBuilder.AppendLine();
         }
 
-        classBuilder.AppendLine("}");
+        classBuilder.AppendLine("\t}");
         classBuilder.AppendLine("}");
 
         return classBuilder.ToString();
