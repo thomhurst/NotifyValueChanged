@@ -36,9 +36,11 @@ public class GenerateInterfaceContextChangeEventGenerator : ISourceGenerator
     private string GenerateInterface(GeneratorExecutionContext context, INamedTypeSymbol @interface, INamespaceSymbol @namespace, List<IPropertySymbol> properties) {
         var classBuilder = new StringBuilder();
         var callerMemberSymbol = context.Compilation.GetTypeByMetadataName("System.Runtime.CompilerServices.CallerMemberNameAttribute");
+        var generateInterfaceContextChangeEventAttributeSymbol = context.Compilation.GetTypeByMetadataName(typeof(GenerateInterfaceContextChangeEventAttribute).FullName);
         
         classBuilder.AppendLine("using System;");
         classBuilder.AppendLine($"using {callerMemberSymbol.ContainingNamespace};");
+        classBuilder.AppendLine($"using {generateInterfaceContextChangeEventAttributeSymbol.ContainingNamespace};");
         classBuilder.AppendLine($"namespace {@namespace.ToDisplayString()}");
         classBuilder.AppendLine("{");
         
