@@ -1,6 +1,11 @@
 # NotifyValueChanged - Automatic Event Firing on Property Value Changes
 A source generated approach, to turn your backing fields into properties that can fire events when their value changes - Automagically!
 
+[![nuget](https://img.shields.io/nuget/v/TomLonghurst.Events.NotifyValueChanged.svg)](https://www.nuget.org/packages/TomLonghurst.Events.NotifyValueChanged/)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/16305948c33040f0982da5322df8d8e1)](https://www.codacy.com/gh/thomhurst/NotifyValueChanged/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=thomhurst/NotifyValueChanged&amp;utm_campaign=Badge_Grade)
+[![CodeFactor](https://www.codefactor.io/repository/github/thomhurst/notifyvaluechanged/badge)](https://www.codefactor.io/repository/github/thomhurst/notifyvaluechanged)
+
+
 ## Support
 
 If this library helped you, consider buying me a coffee
