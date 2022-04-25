@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
+using TomLonghurst.Events.NotifyContextChanged.Extensions;
 
 namespace TomLonghurst.Events.NotifyContextChanged.SourceGeneration.Interface;
 
@@ -45,7 +46,7 @@ public class GenerateInterfaceContextChangeEventGenerator : ISourceGenerator
         classBuilder.AppendLine("{");
 
         foreach(var property in properties) {
-            var fullyQualifiedFieldType = GetFullyQualifiedFieldType(property);
+            var fullyQualifiedFieldType = property.Type.GetFullyQualifiedType();
             classBuilder.AppendLine($"public event ContextChangedEventHandler<{fullyQualifiedFieldType}> On{property.Name}ContextChange;");
         }
 
@@ -53,10 +54,5 @@ public class GenerateInterfaceContextChangeEventGenerator : ISourceGenerator
         classBuilder.AppendLine("}");
 
         return classBuilder.ToString();
-    }
-
-    private static string GetFullyQualifiedFieldType(IPropertySymbol property)
-    {
-        return property.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
     }
 }

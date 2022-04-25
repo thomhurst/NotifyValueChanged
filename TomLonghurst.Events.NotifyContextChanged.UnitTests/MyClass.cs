@@ -1,4 +1,5 @@
-﻿using TomLonghurst.Events.NotifyContextChanged.SourceGeneration;
+﻿using System.Collections.Generic;
+using TomLonghurst.Events.NotifyContextChanged.SourceGeneration;
 using TomLonghurst.Events.NotifyContextChanged.SourceGeneration.Implementation;
 
 namespace TomLonghurst.Events.NotifyContextChanged.UnitTests;
@@ -22,4 +23,10 @@ public partial class MyClass
     
     [NotifyContextChange]
     private int? _myNullableInt2;
+
+    [NotifyContextChange]
+    private IEnumerable<string> _genericEnumerable;
+    
+    [NotifyContextChange]
+    private IEnumerable<string>? _genericNullableEnumerable;
 }

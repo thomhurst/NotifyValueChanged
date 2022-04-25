@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
@@ -51,13 +52,13 @@ public class NotifyContextChangeGenerator : ISourceGenerator
         classBuilder.AppendLine($"public partial class {@class.Name}");
         classBuilder.AppendLine(":");
         
-        var commaSeparatedListOfInterfaces = fields.Select(GetSimpleFieldTypeName).Select(simpleFieldType => $"INotifyType{simpleFieldType}ContextChanged").Distinct().Aggregate((a, x) => $"{a}, {x}");
+        var commaSeparatedListOfInterfaces = fields.Select(x => x.Type.GetSimpleTypeName()).Select(simpleFieldType => $"INotifyType{simpleFieldType}ContextChanged").Distinct().Aggregate((a, x) => $"{a}, {x}");
         classBuilder.AppendLine(commaSeparatedListOfInterfaces); 
         classBuilder.AppendLine("{");
 
         foreach(var field in fields) {
-            var fullyQualifiedFieldType = GetFullyQualifiedFieldType(field);
-            var simpleFieldType = GetSimpleFieldTypeName(field);
+            var fullyQualifiedFieldType = field.Type.GetFullyQualifiedType();
+            var simpleFieldType = field.Type.GetSimpleTypeName();
             var fieldName = field.Name;
             var propertyName = NormalizePropertyName(fieldName);
             classBuilder.AppendLine($"public {fullyQualifiedFieldType} {propertyName}");
@@ -84,6 +85,8 @@ public class NotifyContextChangeGenerator : ISourceGenerator
         classBuilder.AppendLine("}");
         classBuilder.AppendLine("}");
 
+        Debugger.Launch();
+
         return classBuilder.ToString();
     }
     private void WriteInterfaceImplementations(StringBuilder classBuilder, List<IFieldSymbol> fields)
@@ -92,8 +95,8 @@ public class NotifyContextChangeGenerator : ISourceGenerator
 
         foreach (var field in fields)
         {
-            var fullyQualifiedFieldType = GetFullyQualifiedFieldType(field);
-            var simpleFieldType = GetSimpleFieldTypeName(field);
+            var fullyQualifiedFieldType = field.Type.GetFullyQualifiedType();
+            var simpleFieldType = field.Type.GetSimpleTypeName();
             if (fullyQualifiedTypesWritten.Contains(fullyQualifiedFieldType))
             {
                 continue;
@@ -126,8 +129,8 @@ public class NotifyContextChangeGenerator : ISourceGenerator
 
         foreach (var field in fields)
         {
-            var fullyQualifiedFieldType = GetFullyQualifiedFieldType(field);
-            var simpleFieldType = GetSimpleFieldTypeName(field);
+            var fullyQualifiedFieldType = field.Type.GetFullyQualifiedType();;
+            var simpleFieldType = field.Type.GetSimpleTypeName();
 
             var interfaceName = $"INotifyType{simpleFieldType}ContextChanged";
             
@@ -145,25 +148,8 @@ public class NotifyContextChangeGenerator : ISourceGenerator
         }
 
         classBuilder.AppendLine("}");
-
+        
         return classBuilder.ToString();
-    }
-
-    private static string GetFullyQualifiedFieldType(IFieldSymbol field)
-    {
-        return field.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-    }
-
-    private static string GetSimpleFieldTypeName(IFieldSymbol field)
-    {
-        var simpleFieldName = GetFullyQualifiedFieldType(field).Split('.').Last();
-
-        if (field.Type.NullableAnnotation == NullableAnnotation.Annotated)
-        {
-            return $"Nullable{simpleFieldName.CapitalizeFirstLetter()}".Replace("?", string.Empty);
-        }
-
-        return simpleFieldName.CapitalizeFirstLetter();
     }
 
     private string NormalizePropertyName(string fieldName) {
