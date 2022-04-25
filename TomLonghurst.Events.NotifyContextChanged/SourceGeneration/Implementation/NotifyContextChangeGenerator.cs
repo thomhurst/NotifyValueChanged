@@ -141,7 +141,6 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             classBuilder.AppendLine($"public interface {interfaceName}");
             classBuilder.AppendLine("{");
             classBuilder.AppendLine($"event ContextChangedEventHandler<{fullyQualifiedFieldType}> OnType{simpleFieldType}ContextChange;");
-            //classBuilder.AppendLine($"void OnType{simpleFieldType}ContextChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, [CallerMemberName] string propertyName = null);");
             classBuilder.AppendLine("}");
         }
 
