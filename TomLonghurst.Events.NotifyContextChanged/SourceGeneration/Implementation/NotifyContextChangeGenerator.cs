@@ -84,9 +84,7 @@ public class NotifyContextChangeGenerator : ISourceGenerator
         
         classBuilder.AppendLine("}");
         classBuilder.AppendLine("}");
-
-        Debugger.Launch();
-
+        
         return classBuilder.ToString();
     }
     private void WriteInterfaceImplementations(StringBuilder classBuilder, List<IFieldSymbol> fields)

@@ -29,4 +29,10 @@ public partial class MyClass
     
     [NotifyContextChange]
     private IEnumerable<string>? _genericNullableEnumerable;
+    
+    [NotifyContextChange]
+    private IEnumerable<string?> _genericEnumerableWithNullableTypeParameter;
+    
+    [NotifyContextChange]
+    private IEnumerable<string?>? _genericNullableEnumerableWithNullableTypeParameter;
 }
