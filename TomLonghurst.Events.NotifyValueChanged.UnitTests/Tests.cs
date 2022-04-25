@@ -19,7 +19,7 @@ public class Tests
     [Test]
     public void When_Value_Never_Changes_Then_Dont_Invoke_Event()
     {
-        _myClass.OnMyString1ValueChange += (sender, args) =>
+        _myClass.OnMyString1ValueChange += (_, args) =>
         {
             _dummyInterface.Object.TwoStrings(args.PreviousValue, args.NewValue, args.PropertyName);
         };
@@ -30,7 +30,7 @@ public class Tests
     [Test]
     public void When_Value_Changes_Then_Invoke_Event()
     {
-        _myClass.OnMyString1ValueChange += (sender, args) =>
+        _myClass.OnMyString1ValueChange += (_, args) =>
         {
             _dummyInterface.Object.TwoStrings(args.PreviousValue, args.NewValue, args.PropertyName);
         };
@@ -43,7 +43,7 @@ public class Tests
     [Test]
     public void When_Different_Value_Changes_Then_Dont_Invoke_Event()
     {
-        _myClass.OnMyString1ValueChange += (sender, args) =>
+        _myClass.OnMyString1ValueChange += (_, args) =>
         {
             _dummyInterface.Object.TwoStrings(args.PreviousValue, args.NewValue, args.PropertyName);
         };
@@ -56,7 +56,7 @@ public class Tests
     [Test]
     public void When_Value_Changes_X_Times_Then_Invoke_Event()
     {
-        _myClass.OnMyString1ValueChange += (sender, args) =>
+        _myClass.OnMyString1ValueChange += (_, args) =>
         {
             _dummyInterface.Object.TwoStrings(args.PreviousValue, args.NewValue, args.PropertyName);
         };
@@ -72,7 +72,7 @@ public class Tests
     [Test]
     public void When_Value_Is_Same_Then_Dont_Invoke_Event()
     {
-        _myClass.OnMyString1ValueChange += (sender, args) =>
+        _myClass.OnMyString1ValueChange += (_, args) =>
         {
             _dummyInterface.Object.TwoStrings(args.PreviousValue, args.NewValue, args.PropertyName);
         };
@@ -89,7 +89,7 @@ public class Tests
     [Test]
     public void When_Value_Changes_Then_Invoke_Generic_Type_Event()
     {
-        _myClass.OnTypeStringValueChange += (sender, args) =>
+        _myClass.OnTypeStringValueChange += (_, args) =>
         {
             _dummyInterface.Object.TwoStrings(args.PreviousValue, args.NewValue, args.PropertyName);
         };

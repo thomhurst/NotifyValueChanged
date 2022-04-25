@@ -3,17 +3,17 @@
 using TomLonghurst.Events.NotifyValueChanged.Example;
 
 var myClass = new MyClass();
-myClass.OnMyNameValueChange += (sender, eventArgs) =>
+myClass.OnMyNameValueChange += (_, eventArgs) =>
 {
     Console.WriteLine($"Name was: {eventArgs.PreviousValue} and is now {eventArgs.NewValue}\n");
 };
 
-myClass.OnMyAgeValueChange += (sender, eventArgs) =>
+myClass.OnMyAgeValueChange += (_, eventArgs) =>
 {
     Console.WriteLine($"Age was: {eventArgs.PreviousValue} and is now {eventArgs.NewValue}\n");
 };
 
-myClass.OnIsMaleValueChange += (sender, eventArgs) =>
+myClass.OnIsMaleValueChange += (_, eventArgs) =>
 {
     Console.WriteLine($"IsMale was: {eventArgs.PreviousValue} and is now {eventArgs.NewValue}\n");
 };
@@ -29,7 +29,7 @@ myClass.IsMale = false;
 myClass.IsMale = true;
 
 var myClassAsInterface = myClass as IMyClass;
-myClassAsInterface.OnMyAgeValueChange += (sender, eventArgs) => Console.WriteLine("My second event!");
+myClassAsInterface.OnMyAgeValueChange += (_, _) => Console.WriteLine("My second event!");
 
 myClass.MyAge = 29;
 myClass.MyAge = 0;
