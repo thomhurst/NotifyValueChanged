@@ -91,18 +91,21 @@ public class NotifyContextChangeGenerator : ISourceGenerator
     }
     private void WriteInterfaceImplementations(StringBuilder classBuilder, List<IFieldSymbol> fields)
     {
-        List<string> fullyQualifiedTypesWritten = new();
+        var interfacesCreated = new List<string>();
 
         foreach (var field in fields)
         {
-            var fullyQualifiedFieldType = field.Type.GetFullyQualifiedType();
+            var fullyQualifiedFieldType = field.Type.GetFullyQualifiedType();;
             var simpleFieldType = field.Type.GetSimpleTypeName();
-            if (fullyQualifiedTypesWritten.Contains(fullyQualifiedFieldType))
+
+            var interfaceName = $"INotifyType{simpleFieldType}ContextChanged";
+            
+            if (interfacesCreated.Contains(interfaceName))
             {
                 continue;
             }
             
-            fullyQualifiedTypesWritten.Add(fullyQualifiedFieldType);
+            interfacesCreated.Add(interfaceName);
             
             classBuilder.AppendLine($"public event ContextChangedEventHandler<{fullyQualifiedFieldType}> OnType{simpleFieldType}ContextChange;");
             classBuilder.AppendLine($"private void OnType{simpleFieldType}ContextChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, [CallerMemberName] string propertyName = null)");
@@ -167,10 +170,5 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             On{propertyName}ContextChange?.Invoke(this, new ContextChangedEventArgs<{fieldType}>(propertyName, previousValue, newValue));
         }}
         ";
-    }
-
-    private string GenerateInterfaceContextChangeImplementation(string propertyName, string fieldType, IFieldSymbol field)
-    {
-        return $"public event ContextChangedEventHandler<{fieldType}> On{propertyName}ContextChange;";
     }
 }
