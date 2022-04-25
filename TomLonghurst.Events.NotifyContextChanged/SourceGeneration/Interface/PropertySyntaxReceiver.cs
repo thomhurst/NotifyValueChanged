@@ -13,7 +13,7 @@ internal class PropertySyntaxReceiver : ISyntaxContextReceiver
         {
             var property = context.SemanticModel.GetDeclaredSymbol(propertyDeclaration);
  
-            if(property is IPropertySymbol propertySymbol && property.GetAttributes().Any(x=>x.AttributeClass.ToDisplayString() == typeof(GenerateContextChangeEventForInterfaceAttribute).FullName))
+            if(property is IPropertySymbol propertySymbol && property.GetAttributes().Any(x=>x.AttributeClass.ToDisplayString() == typeof(GenerateInterfaceContextChangeEventAttribute).FullName))
             {
                 IdentifiedProperties.Add(propertySymbol);
             }
