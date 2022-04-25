@@ -32,7 +32,7 @@ public partial class Person
 
 Your class now has a property called `Name` - And you can subscribe to an event called `OnNameValueChange` that will fire whenever the value of `Name` changes.
 
-You can do this for multiple fields, and each one should generate you a separate event that you can subscribe to called 'On{PropertyName}ValueChange'
+You can do this for multiple fields, and each one should generate you a separate event that you can subscribe to called `On{PropertyName}ValueChange`
 
 ```csharp
 var person = new Person();
