@@ -21,6 +21,7 @@ Install via Nuget
 - Make your class `partial` 
 - Declare a `private` *field* - This is the backing field for which the property will be generated for.
 - Add the `[NotifyValueChange]` attribute to the field
+- That's it!
 ```csharp
 public partial class Person
 {
