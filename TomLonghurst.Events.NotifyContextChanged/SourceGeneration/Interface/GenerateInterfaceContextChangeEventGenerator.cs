@@ -46,7 +46,7 @@ public class GenerateInterfaceContextChangeEventGenerator : ISourceGenerator
 
         foreach(var property in properties) {
             var fullyQualifiedFieldType = GetFullyQualifiedFieldType(property);
-            classBuilder.AppendLine($"public event ContextChangedEventHandler<{fullyQualifiedFieldType}> OnType{property.Name}ContextChangeEvent;");
+            classBuilder.AppendLine($"public event ContextChangedEventHandler<{fullyQualifiedFieldType}> On{property.Name}ContextChange;");
         }
 
         classBuilder.AppendLine("}");

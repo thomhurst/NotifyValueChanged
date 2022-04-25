@@ -1,9 +1,8 @@
-﻿using TomLonghurst.Events.NotifyContextChanged.SourceGeneration;
-using TomLonghurst.Events.NotifyContextChanged.SourceGeneration.Implementation;
+﻿using TomLonghurst.Events.NotifyContextChanged.SourceGeneration.Implementation;
 
 namespace TomLonghurst.Events.NotifyContextChanged.Example;
 
-public partial class MyClass
+public partial class MyClass : IMyClass
 {
     [NotifyContextChange]
     private string _myName;

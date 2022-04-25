@@ -101,10 +101,10 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             
             fullyQualifiedTypesWritten.Add(fullyQualifiedFieldType);
             
-            classBuilder.AppendLine($"public event ContextChangedEventHandler<{fullyQualifiedFieldType}> OnType{simpleFieldType}ContextChangeEvent;");
+            classBuilder.AppendLine($"public event ContextChangedEventHandler<{fullyQualifiedFieldType}> OnType{simpleFieldType}ContextChange;");
             classBuilder.AppendLine($"private void OnType{simpleFieldType}ContextChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, [CallerMemberName] string propertyName = null)");
             classBuilder.AppendLine("{");
-            classBuilder.AppendLine($"OnType{simpleFieldType}ContextChangeEvent?.Invoke(this, new ContextChangedEventArgs<{fullyQualifiedFieldType}>(propertyName, previousValue, newValue));");
+            classBuilder.AppendLine($"OnType{simpleFieldType}ContextChange?.Invoke(this, new ContextChangedEventArgs<{fullyQualifiedFieldType}>(propertyName, previousValue, newValue));");
             classBuilder.AppendLine("}");
         }
     }
@@ -140,7 +140,7 @@ public class NotifyContextChangeGenerator : ISourceGenerator
             
             classBuilder.AppendLine($"public interface {interfaceName}");
             classBuilder.AppendLine("{");
-            classBuilder.AppendLine($"event ContextChangedEventHandler<{fullyQualifiedFieldType}> OnType{simpleFieldType}ContextChangeEvent;");
+            classBuilder.AppendLine($"event ContextChangedEventHandler<{fullyQualifiedFieldType}> OnType{simpleFieldType}ContextChange;");
             //classBuilder.AppendLine($"void OnType{simpleFieldType}ContextChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, [CallerMemberName] string propertyName = null);");
             classBuilder.AppendLine("}");
         }
