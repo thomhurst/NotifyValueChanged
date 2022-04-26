@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.CodeDom.Compiler;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
@@ -36,28 +37,30 @@ public class GenerateInterfaceValueChangeEventGenerator : ISourceGenerator
     }
     
     private string GenerateInterface(GeneratorExecutionContext context, INamedTypeSymbol @interface, INamespaceSymbol @namespace, List<IPropertySymbol> properties) {
-        var classBuilder = new StringBuilder();
+        var stringWriter = new StringWriter();
+        var classBuilder = new IndentedTextWriter(stringWriter);
 
-        classBuilder.AppendLine("using System;");
-        classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventArgs<>)));
-        classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventHandler<>)));
-        classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(CallerMemberNameAttribute)));
-        classBuilder.AppendLine(context.GetUsingStatementForNamespace(typeof(GenerateInterfaceValueChangeEventAttribute)));
-        classBuilder.AppendLine($"namespace {@namespace.ToDisplayString()}");
-        classBuilder.AppendLine("{");
+        classBuilder.WriteLine("using System;");
+        classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventArgs<>)));
+        classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventHandler<>)));
+        classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(CallerMemberNameAttribute)));
+        classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(GenerateInterfaceValueChangeEventAttribute)));
+        classBuilder.WriteLine($"namespace {@namespace.ToDisplayString()}");
+        classBuilder.WriteLine("{");
         
-        classBuilder.AppendLine($"\tpublic partial interface {@interface.Name}");
-        classBuilder.AppendLine("\t{");
+        classBuilder.WriteLine($"\tpublic partial interface {@interface.Name}");
+        classBuilder.WriteLine("\t{");
 
         foreach(var property in properties) {
             var fullyQualifiedFieldType = property.Type.GetFullyQualifiedType();
-            classBuilder.AppendLine($"\t\tpublic event {nameof(ValueChangedEventHandler<object>)}<{fullyQualifiedFieldType}> On{property.Name}ValueChange;");
-            classBuilder.AppendLine();
+            classBuilder.WriteLine($"\t\tpublic event {nameof(ValueChangedEventHandler<object>)}<{fullyQualifiedFieldType}> On{property.Name}ValueChange;");
+            classBuilder.WriteLine();
         }
 
-        classBuilder.AppendLine("\t}");
-        classBuilder.AppendLine("}");
+        classBuilder.WriteLine("\t}");
+        classBuilder.WriteLine("}");
 
-        return classBuilder.ToString();
+        classBuilder.Flush();
+        return stringWriter.ToString();
     }
 }
