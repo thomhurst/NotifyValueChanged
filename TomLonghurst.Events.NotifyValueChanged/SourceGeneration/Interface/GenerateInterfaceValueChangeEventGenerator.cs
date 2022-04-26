@@ -12,12 +12,12 @@ public class GenerateInterfaceValueChangeEventGenerator : ISourceGenerator
 {
     public void Initialize(GeneratorInitializationContext context)
     {
-        context.RegisterForSyntaxNotifications(() => new PropertySyntaxReceiver());
+        context.RegisterForSyntaxNotifications(() => new PropertyGenerateInterfaceValueChangeEventAttributeSyntaxReceiver());
     }
 
     public void Execute(GeneratorExecutionContext context)
     {
-        if (context.SyntaxContextReceiver is not PropertySyntaxReceiver syntaxReciever)
+        if (context.SyntaxContextReceiver is not PropertyGenerateInterfaceValueChangeEventAttributeSyntaxReceiver syntaxReciever)
         {
             return;
         }

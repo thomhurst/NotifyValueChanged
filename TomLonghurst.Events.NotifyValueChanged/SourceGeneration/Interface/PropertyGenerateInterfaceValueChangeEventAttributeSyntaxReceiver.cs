@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Interface;
 
-internal class PropertySyntaxReceiver : ISyntaxContextReceiver
+internal class PropertyGenerateInterfaceValueChangeEventAttributeSyntaxReceiver : ISyntaxContextReceiver
 {
     public List<IPropertySymbol> IdentifiedProperties { get; } = new();
 
@@ -15,7 +15,7 @@ internal class PropertySyntaxReceiver : ISyntaxContextReceiver
         }
 
         var property = context.SemanticModel.GetDeclaredSymbol(propertyDeclaration);
- 
+
         if(property is IPropertySymbol propertySymbol 
            && property.GetAttributes().Any(x => x.AttributeClass.ToDisplayString() == typeof(GenerateInterfaceValueChangeEventAttribute).FullName))
         {
