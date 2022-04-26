@@ -30,19 +30,28 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             return;
         }
 
-        var fieldsThatNeedInterfacesGenerating = new List<IFieldSymbol>();
+        var typeEventsThatNeedInterfacesGenerating = new List<ITypeSymbol?>();
+        var allFields = new List<IFieldSymbol>();
+        
         foreach (var containingClassGroup in syntaxReciever.IdentifiedFields.GroupBy(x => x.ContainingType)) 
         {
             var containingClass = containingClassGroup.Key;
             var namespaceSymbol = containingClass.ContainingNamespace;
+            
+            var types = containingClass.GetAttributes()
+                .Where(x => x.AttributeClass.ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == typeof(NotifyTypeValueChangeAttribute).FullName)
+                .Select(x => x.ConstructorArguments.First().Value as ITypeSymbol)
+                .ToList();
+
             var fields = containingClassGroup.ToList();
+            allFields.AddRange(fields);
             
             var source = GenerateClass(context, containingClass, namespaceSymbol, fields);
-            fieldsThatNeedInterfacesGenerating.AddRange(fields);
+            typeEventsThatNeedInterfacesGenerating.AddRange(types);
             context.AddSource($"{containingClass.Name}_NotifyValueChanged.generated", SourceText.From(source, Encoding.UTF8));
         }
 
-        var interfaceSource = WriteInterfaces(context, fieldsThatNeedInterfacesGenerating);
+        var interfaceSource = WriteTypeEventInterfaces(context, typeEventsThatNeedInterfacesGenerating, allFields);
         context.AddSource($"INotifyValueChangedInterfaces_NotifyValueChanged.generated", SourceText.From(interfaceSource, Encoding.UTF8));
     }
     
@@ -57,7 +66,12 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         
         classBuilder.AppendLine($"\tpublic partial class {@class.Name}");
         
-        var listOfInterfaces = fields.Where(ShouldGenerateTypeValueChangeImplementation).Select(x => x.Type.GetSimpleTypeName()).Select(simpleFieldType => $"INotifyType{simpleFieldType}ValueChanged").Distinct().ToList();
+        var listOfInterfaces = fields.Where(x => ShouldGenerateTypeValueChangeImplementation(x, @class)).Select(x => x.Type.GetSimpleTypeName()).Select(simpleFieldType => $"INotifyType{simpleFieldType}ValueChanged").Distinct().ToList();
+        var shouldGenerateAnyValueChangeImplementation = ShouldGenerateAnyValueChangeImplementation(@class);
+        if (shouldGenerateAnyValueChangeImplementation)
+        {
+            listOfInterfaces.Add("INotifyValueChanged");
+        }
 
         if (listOfInterfaces.Any())
         {
@@ -66,11 +80,6 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             classBuilder.AppendLine($"\t{commaSeparatedListOfInterfaces}"); 
         }
 
-        if (ShouldGenerateAnyValueChangeImplementation(@class))
-        {
-            classBuilder.AppendLine($"\t, INotifyValueChanged");
-        }
-        
         classBuilder.AppendLine("\t{");
 
         foreach(var field in fields) {
@@ -94,12 +103,12 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             classBuilder.AppendLine($"\t\t\t\t_dateTime{propertyName}Set = DateTimeOffset.UtcNow;");
             classBuilder.AppendLine($"\t\t\t\tNotify{propertyName}ValueChanged(previousValue, value, previousValueDateTimeSet, _dateTime{propertyName}Set);");
             
-            if (ShouldGenerateTypeValueChangeImplementation(field))
+            if (ShouldGenerateTypeValueChangeImplementation(field, @class))
             {
                 classBuilder.AppendLine($"\t\t\t\tOnType{simpleFieldType}ValueChanged(previousValue, value, previousValueDateTimeSet, _dateTime{propertyName}Set);");
             }
             
-            if (ShouldGenerateAnyValueChangeImplementation(@class))
+            if (shouldGenerateAnyValueChangeImplementation)
             {
                 classBuilder.AppendLine($"\t\t\t\tOnAnyValueChanged(previousValue, value, previousValueDateTimeSet, _dateTime{propertyName}Set);");
             }
@@ -111,7 +120,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             classBuilder.AppendLine(GenerateClassValueChangedImplementation(propertyName, fullyQualifiedFieldType));
         }
         
-        WriteTypeChangeImplementations(classBuilder, fields);
+        WriteTypeChangeImplementations(classBuilder, fields, @class);
         WriteAnyChangeImplementations(classBuilder, @class);
         
         classBuilder.AppendLine("\t}");
@@ -120,13 +129,13 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         return classBuilder.ToString();
     }
 
-    private void WriteTypeChangeImplementations(StringBuilder classBuilder, List<IFieldSymbol> fields)
+    private void WriteTypeChangeImplementations(StringBuilder classBuilder, List<IFieldSymbol> fields, INamedTypeSymbol @class)
     {
         var interfacesCreated = new List<string>();
 
         foreach (var field in fields)
         {
-            var shouldGenerateInterfaceImplementation = ShouldGenerateTypeValueChangeImplementation(field);
+            var shouldGenerateInterfaceImplementation = ShouldGenerateTypeValueChangeImplementation(field, @class);
             
             if (!shouldGenerateInterfaceImplementation)
             {
@@ -169,8 +178,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         classBuilder.AppendLine();
     }
 
-    private static string WriteInterfaces(GeneratorExecutionContext context,
-        List<IFieldSymbol> fields)
+    private static string WriteTypeEventInterfaces(GeneratorExecutionContext context, List<ITypeSymbol?> types, List<IFieldSymbol> fields)
     { 
         var interfacesCreated = new List<string>();
     
@@ -183,9 +191,9 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         classBuilder.AppendLine($"namespace {notifyPropertyChangedSymbol.ContainingNamespace.ToDisplayString()}");
         classBuilder.AppendLine("{");
 
-        foreach (var field in fields)
+        foreach (var type in types)
         {
-            GenerateGenericTypeEvent(field, interfacesCreated, classBuilder);
+            GenerateGenericTypeEvent(type, fields, interfacesCreated, classBuilder);
         }
         
         classBuilder.AppendLine("}");
@@ -193,16 +201,16 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         return classBuilder.ToString();
     }
 
-    private static void GenerateGenericTypeEvent(IFieldSymbol field, List<string> interfacesCreated, StringBuilder classBuilder)
+    private static void GenerateGenericTypeEvent(ITypeSymbol? type, List<IFieldSymbol> fields, List<string> interfacesCreated, StringBuilder classBuilder)
     {
-        var shouldGenerateInterfaceImplementation = ShouldGenerateTypeValueChangeImplementation(field);
+        var fullyQualifiedFieldType = type.GetFullyQualifiedType();
+        var field = fields.FirstOrDefault(x => x.Type.ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == fullyQualifiedFieldType);
 
-        if (!shouldGenerateInterfaceImplementation)
+        if (field == null)
         {
             return;
         }
 
-        var fullyQualifiedFieldType = field.Type.GetFullyQualifiedType();
         var simpleFieldType = field.Type.GetSimpleTypeName();
 
         var interfaceName = $"INotifyType{simpleFieldType}ValueChanged";
@@ -239,13 +247,15 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         ";
     }
 
-    private static bool ShouldGenerateTypeValueChangeImplementation(IFieldSymbol field)
+    private static bool ShouldGenerateTypeValueChangeImplementation(IFieldSymbol field, INamedTypeSymbol @class)
     {
-        return SymbolHelper.GetAttributePropertyValue<NotifyValueChangeAttribute, bool>(field, x => x.GenerateGenericTypeValueChangeEvent);
+        return @class.GetAttributes()
+            .Any(x => x.AttributeClass.ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == typeof(NotifyTypeValueChangeAttribute).FullName
+                      && (x.ConstructorArguments.First().Value as ITypeSymbol).ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == field.Type.ToDisplayString(SymbolDisplayFormats.NamespaceAndType));
     }
     
     private static bool ShouldGenerateAnyValueChangeImplementation(INamedTypeSymbol @class)
     {
-        return @class.GetAttributes().Any(x => x.AttributeClass.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == typeof(NotifyAnyValueChangeAttribute).FullName);
+        return @class.GetAttributes().Any(x => x.AttributeClass.ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == typeof(NotifyAnyValueChangeAttribute).FullName);
     }
 }

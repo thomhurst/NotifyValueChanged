@@ -1,21 +1,13 @@
 ﻿using Microsoft.CodeAnalysis;
+using TomLonghurst.Events.NotifyValueChanged.SourceGeneration;
 
 namespace TomLonghurst.Events.NotifyValueChanged.Extensions;
 
 internal static class SymbolExtensions
 {
-    private const string GlobalPrefix = "global::";
-
     public static string GetFullyQualifiedType(this ITypeSymbol type)
     {
-        var fullyQualifiedFormat = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-        if (fullyQualifiedFormat.StartsWith(GlobalPrefix))
-        {
-            fullyQualifiedFormat = fullyQualifiedFormat.Substring(GlobalPrefix.Length, fullyQualifiedFormat.Length - GlobalPrefix.Length);
-        }
-
-        return fullyQualifiedFormat;
+        return type.ToDisplayString(SymbolDisplayFormats.NamespaceAndType);
     }
     
     public static string GetSimpleTypeName(this ITypeSymbol type)
@@ -24,14 +16,14 @@ internal static class SymbolExtensions
 
         if (type.NullableAnnotation == NullableAnnotation.Annotated)
         {
-            simpleFieldName = $"Nullable{simpleFieldName.CapitalizeFirstLetter()}".Replace("?", string.Empty);
+            simpleFieldName = $"Nullable{simpleFieldName}".Replace("?", string.Empty);
         }
 
         var typeArguments = GetGenericTypeArguments(type).ToList();
 
         if (!typeArguments.Any())
         {
-            return simpleFieldName.CapitalizeFirstLetter();   
+            return simpleFieldName;   
         }
 
         if (simpleFieldName.Contains('<') && simpleFieldName.Contains('>'))
@@ -39,10 +31,10 @@ internal static class SymbolExtensions
             var firstDiamondBracketIndex = simpleFieldName.IndexOf('<');
             var lastDiamondBracketIndex = simpleFieldName.LastIndexOf('>');
 
-            return simpleFieldName.CapitalizeFirstLetter().Replace(simpleFieldName.Substring(firstDiamondBracketIndex, lastDiamondBracketIndex - firstDiamondBracketIndex+1), string.Join("", typeArguments));
+            return simpleFieldName.Replace(simpleFieldName.Substring(firstDiamondBracketIndex, lastDiamondBracketIndex - firstDiamondBracketIndex+1), string.Join("", typeArguments));
         }
 
-        return simpleFieldName.CapitalizeFirstLetter();
+        return simpleFieldName;
     }
 
     private static IEnumerable<string> GetGenericTypeArguments(ITypeSymbol type)

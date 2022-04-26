@@ -3,6 +3,7 @@ using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation;
 
 namespace TomLonghurst.Events.NotifyValueChanged.UnitTests;
 
+[NotifyTypeValueChange(typeof(string))]
 public partial class MyClass
 {
     [NotifyValueChange(GenerateGenericTypeValueChangeEvent = true)]

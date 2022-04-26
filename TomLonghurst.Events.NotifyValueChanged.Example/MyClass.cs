@@ -50,6 +50,9 @@ public partial class MyClass : IMyClass
     
     [NotifyValueChange]
     private IDictionary<string?, int?>? _nullableGenericWithTwoTypeParametersNullableBothType;
+    
+    [NotifyValueChange]
+    private IDictionary<string?, int?>? _nullableGenericWithTwoTypeParametersNullableBothType2;
 
     [NotifyValueChange(GenerateGenericTypeValueChangeEvent = true)]
     private Pipe _fieldWithGenericTypeEventEnabled;
