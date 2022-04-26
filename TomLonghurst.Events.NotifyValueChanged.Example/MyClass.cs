@@ -3,6 +3,7 @@ using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation;
 
 namespace TomLonghurst.Events.NotifyValueChanged.Example;
 
+[NotifyAnyValueChange]
 public partial class MyClass : IMyClass
 {
     [NotifyValueChange]
@@ -52,16 +53,4 @@ public partial class MyClass : IMyClass
 
     [NotifyValueChange(GenerateGenericTypeValueChangeEvent = true)]
     private Pipe _fieldWithGenericTypeEventEnabled;
-
-    [NotifyValueChange(GenerateAnyValueChangeInClassEvent = true)]
-    private string _anyValueChangeEvent1;
-    
-    [NotifyValueChange(GenerateAnyValueChangeInClassEvent = true)]
-    private int _anyValueChangeEvent2;
-    
-    [NotifyValueChange(GenerateAnyValueChangeInClassEvent = true)]
-    private bool _anyValueChangeEvent3;
-    
-    [NotifyValueChange(GenerateAnyValueChangeInClassEvent = true)]
-    private IEnumerable<string> _anyValueChangeEvent4;
 }

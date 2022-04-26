@@ -12,7 +12,6 @@ namespace TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation
 [Generator]
 public class NotifyValueChangeGenerator : ISourceGenerator
 {
-    private static bool _anyTypeValueChangeEventWritten = false;
     public void Initialize(GeneratorInitializationContext context)
     {
         context.RegisterForSyntaxNotifications(() => new FieldSyntaxReceiver());
@@ -67,7 +66,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             classBuilder.AppendLine($"\t{commaSeparatedListOfInterfaces}"); 
         }
 
-        if (fields.Any(ShouldGenerateAnyValueChangeImplementation))
+        if (ShouldGenerateAnyValueChangeImplementation(@class))
         {
             classBuilder.AppendLine($"\t, INotifyValueChanged");
         }
@@ -100,7 +99,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
                 classBuilder.AppendLine($"\t\t\t\tOnType{simpleFieldType}ValueChanged(previousValue, value, previousValueDateTimeSet, _dateTime{propertyName}Set);");
             }
             
-            if (ShouldGenerateAnyValueChangeImplementation(field))
+            if (ShouldGenerateAnyValueChangeImplementation(@class))
             {
                 classBuilder.AppendLine($"\t\t\t\tOnAnyValueChanged(previousValue, value, previousValueDateTimeSet, _dateTime{propertyName}Set);");
             }
@@ -113,7 +112,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         }
         
         WriteTypeChangeImplementations(classBuilder, fields);
-        WriteAnyChangeImplementations(classBuilder, fields);
+        WriteAnyChangeImplementations(classBuilder, @class);
         
         classBuilder.AppendLine("\t}");
         classBuilder.AppendLine("}");
@@ -155,9 +154,9 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         }
     }
 
-    private void WriteAnyChangeImplementations(StringBuilder classBuilder, List<IFieldSymbol> fields)
+    private void WriteAnyChangeImplementations(StringBuilder classBuilder, INamedTypeSymbol @class)
     {
-        if (_anyTypeValueChangeEventWritten || !fields.Any(x => ShouldGenerateAnyValueChangeImplementation(x)))
+        if (!ShouldGenerateAnyValueChangeImplementation(@class))
         {
             return;
         }
@@ -245,8 +244,8 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         return SymbolHelper.GetAttributePropertyValue<NotifyValueChangeAttribute, bool>(field, x => x.GenerateGenericTypeValueChangeEvent);
     }
     
-    private static bool ShouldGenerateAnyValueChangeImplementation(IFieldSymbol field)
+    private static bool ShouldGenerateAnyValueChangeImplementation(INamedTypeSymbol @class)
     {
-        return SymbolHelper.GetAttributePropertyValue<NotifyValueChangeAttribute, bool>(field, x => x.GenerateAnyValueChangeInClassEvent);
+        return @class.GetAttributes().Any(x => x.AttributeClass.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == typeof(NotifyAnyValueChangeAttribute).FullName);
     }
 }
