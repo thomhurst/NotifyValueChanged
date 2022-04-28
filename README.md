@@ -93,7 +93,7 @@ If your class implements an interface and you want this event to be exposed on t
 public partial interface IPerson
 {
     [GenerateInterfaceValueChangeEvent]
-    private string Name { get; }
+    public string Name { get; }
 }
 ```
 
