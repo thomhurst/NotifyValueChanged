@@ -114,6 +114,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             classBuilder.WriteLine("{");
             classBuilder.WriteLine("return;");
             classBuilder.WriteLine("}");
+            classBuilder.WriteLine();
 
             if (propertiesDependentOnField.Any())
             {
@@ -127,8 +128,10 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             
             classBuilder.WriteLine($"var previousValueDateTimeSet = _dateTime{propertyName}Set;");
             classBuilder.WriteLine($"var previousValue = {fieldName};");
+            classBuilder.WriteLine();
             classBuilder.WriteLine($"{fieldName} = value;"); 
             classBuilder.WriteLine($"_dateTime{propertyName}Set = DateTimeOffset.UtcNow;");
+            classBuilder.WriteLine();
             classBuilder.WriteLine($"Notify{propertyName}ValueChanged(previousValue, value, previousValueDateTimeSet, _dateTime{propertyName}Set);");
 
             foreach (var propertyDependentOnField in propertiesDependentOnField)
