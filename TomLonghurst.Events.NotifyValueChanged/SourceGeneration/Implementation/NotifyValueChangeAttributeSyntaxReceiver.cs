@@ -1,6 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Operations;
 using TomLonghurst.Events.NotifyValueChanged.Extensions;
 using TomLonghurst.Events.NotifyValueChanged.Helpers;
 

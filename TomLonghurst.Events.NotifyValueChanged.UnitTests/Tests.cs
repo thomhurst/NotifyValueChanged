@@ -1,9 +1,8 @@
 using System;
 using Moq;
 using NUnit.Framework;
-using TomLonghurst.Events.NotifyValueChanged.UnitTests;
 
-namespace TomLonghurst.Events.NotifyValueChange.UnitTests;
+namespace TomLonghurst.Events.NotifyValueChanged.UnitTests;
 
 public class Tests
 {

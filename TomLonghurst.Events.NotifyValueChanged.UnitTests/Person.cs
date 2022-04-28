@@ -1,6 +1,6 @@
 ﻿using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation;
 
-namespace TomLonghurst.Events.NotifyValueChange.UnitTests;
+namespace TomLonghurst.Events.NotifyValueChanged.UnitTests;
 
 public partial class Person
 {

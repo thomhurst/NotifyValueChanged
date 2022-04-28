@@ -1,8 +1,6 @@
-﻿using System.Diagnostics;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using Microsoft.CodeAnalysis;
 using TomLonghurst.Events.NotifyValueChanged.SourceGeneration;
-using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation;
 
 namespace TomLonghurst.Events.NotifyValueChanged.Helpers;
 
