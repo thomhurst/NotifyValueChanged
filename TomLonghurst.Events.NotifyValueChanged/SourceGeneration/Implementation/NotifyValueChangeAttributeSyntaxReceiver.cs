@@ -6,7 +6,7 @@ namespace TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation
 internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
 {
     public List<IFieldSymbol> IdentifiedFields { get; } = new();
-    public List<IPropertySymbol> IdentifiedProperties { get; } = new();
+    public Dictionary<IPropertySymbol, IFieldSymbol> IdentifiedPropertiesAndAssociatedFields { get; } = new();
 
     public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
     {
@@ -21,7 +21,7 @@ internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
         }
     }
 
-    private static void ProcessProperty(GeneratorSyntaxContext context, PropertyDeclarationSyntax propertyDeclaration)
+    private void ProcessProperty(GeneratorSyntaxContext context, PropertyDeclarationSyntax propertyDeclaration)
     {
         var property = context.SemanticModel.GetDeclaredSymbol(propertyDeclaration);
 
@@ -30,9 +30,9 @@ internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
             return;
         }
 
-        if (IsBasedOnNotifyField(property, context))
+        if (IsBasedOnNotifyField(property, context, out var associatedField))
         {
-            IdentifiedProperties.Add(propertySymbol);
+            IdentifiedPropertiesAndAssociatedFields.Add(propertySymbol, associatedField);
         }
     }
 
@@ -48,13 +48,15 @@ internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
         }
     }
     
-    private bool IsBasedOnNotifyField(ISymbol? symbol, GeneratorSyntaxContext context)
+    private bool IsBasedOnNotifyField(ISymbol? symbol, GeneratorSyntaxContext context, out IFieldSymbol? fieldSymbol)
     {
+        fieldSymbol = null;
         switch (symbol)
         {
             case null:
                 return false;
-            case IFieldSymbol when symbol.GetAttributes().Any(x => x.AttributeClass.ToDisplayString() == typeof(NotifyValueChangeAttribute).FullName):
+            case IFieldSymbol castFieldSymbol when castFieldSymbol.GetAttributes().Any(x => x.AttributeClass.ToDisplayString() == typeof(NotifyValueChangeAttribute).FullName):
+                fieldSymbol = castFieldSymbol;
                 return true;
             case IPropertySymbol propertySymbol:
             {
@@ -66,12 +68,14 @@ internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
                 }
 
                 var getterNode = location.SourceTree.GetRoot().FindNode(location.SourceSpan);
-            
-                if (getterNode.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>()
-                    .Select(node => context.SemanticModel.GetSymbolInfo(node).Symbol)
-                    .Any(nodeSymbol => IsBasedOnNotifyField(nodeSymbol, context)))
+
+                foreach (var nodeSymbol in getterNode.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>()
+                             .Select(node => context.SemanticModel.GetSymbolInfo(node).Symbol))
                 {
-                    return true;
+                    if (IsBasedOnNotifyField(nodeSymbol, context, out fieldSymbol))
+                    {
+                        return true;
+                    }
                 }
 
                 break;

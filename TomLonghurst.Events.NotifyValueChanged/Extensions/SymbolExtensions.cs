@@ -37,6 +37,16 @@ internal static class SymbolExtensions
         return simpleFieldName;
     }
 
+    public static ITypeSymbol GetSymbolType(this ISymbol symbol)
+    {
+        return symbol switch
+        {
+            IPropertySymbol propertySymbol => propertySymbol.Type,
+            IFieldSymbol fieldSymbol => fieldSymbol.Type,
+            _ => throw new ArgumentException($"{symbol} is neither a Field or a Property", nameof(symbol))
+        };
+    }
+
     private static IEnumerable<string> GetGenericTypeArguments(ITypeSymbol type)
     {
         if (type is not INamedTypeSymbol namedTypeSymbol || !namedTypeSymbol.TypeArguments.Any())
