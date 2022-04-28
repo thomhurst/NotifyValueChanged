@@ -63,17 +63,23 @@ public partial class Person
     [NotifyValueChange]
     private string _lastName;
     
-    public string FullName => $"{_firstName} {_lastName}"
+    public string FullName => $"{_firstName} {_lastName}";
 }
 ```
 
 ```csharp
-var person = new Person();
+var person = new Person 
+{
+    FirstName = "Tom",
+    LastName = "Jones"
+};
 
 person.OnFullNameValueChange += (sender, eventArgs) =>
 {
     Console.WriteLine($"The Person's Full Name was: '{eventArgs.PreviousValue}' and is now '{eventArgs.NewValue}'\n");
 };
+
+person.LastName = "Longhurst"; // Will output The Person's Full Name was: 'Tom Jones' and is now 'Tom Longhurst'
 ```
 
 ### Interfaces
