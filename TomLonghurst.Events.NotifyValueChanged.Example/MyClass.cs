@@ -61,4 +61,7 @@ public partial class MyClass : IMyClass
     public string HelloString => $"I depend on notify Fields. {_myName} is {_myAge}";
 
     public string PropertyDependentOnAnotherComputedProperty => $"I depend on {HelloString} which depends on Notify fields";
+
+    [NotifyValueChange(PropertyName = "FOO")]
+    private string _stringWithCustomPropertyName;
 }

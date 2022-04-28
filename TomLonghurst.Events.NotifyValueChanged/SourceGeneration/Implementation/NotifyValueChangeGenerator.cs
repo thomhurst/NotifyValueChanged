@@ -101,7 +101,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             var fullyQualifiedFieldType = field.Type.GetFullyQualifiedType();
             var simpleFieldType = field.Type.GetSimpleTypeName();
             var fieldName = field.Name;
-            var propertyName = NormalizePropertyName(fieldName);
+            var propertyName = field.GetPropertyName();
             classBuilder.WriteLine($"\t\tprivate DateTimeOffset _dateTime{propertyName}Set;");
             classBuilder.WriteLine($"\t\tpublic {fullyQualifiedFieldType} {propertyName}");
             classBuilder.WriteLine("\t\t{");
@@ -264,10 +264,6 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             $"\t\tevent {nameof(ValueChangedEventHandler<object>)}<{fullyQualifiedFieldType}> OnType{simpleTypeName}ValueChange;");
         classBuilder.WriteLine("\t}");
         classBuilder.WriteLine();
-    }
-
-    private string NormalizePropertyName(string fieldName) {
-        return Regex.Replace(fieldName, "_[a-z]", m => m.ToString().TrimStart('_').ToUpper());
     }
 
     private string GenerateClassValueChangedImplementation(string propertyName, string type)

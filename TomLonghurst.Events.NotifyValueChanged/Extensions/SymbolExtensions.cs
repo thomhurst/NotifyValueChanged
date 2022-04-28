@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using TomLonghurst.Events.NotifyValueChanged.SourceGeneration;
+using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation;
 
 namespace TomLonghurst.Events.NotifyValueChanged.Extensions;
 
@@ -45,6 +46,11 @@ internal static class SymbolExtensions
             IFieldSymbol fieldSymbol => fieldSymbol.Type,
             _ => throw new ArgumentException($"{symbol} is neither a Field or a Property", nameof(symbol))
         };
+    }
+
+    public static AttributeData? GetNotifyValueChangeAttribute(this ISymbol symbol)
+    {
+        return symbol.GetAttributes().FirstOrDefault(x => x.AttributeClass.ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == typeof(NotifyValueChangeAttribute).FullName);
     }
 
     private static IEnumerable<string> GetGenericTypeArguments(ITypeSymbol type)
