@@ -20,6 +20,7 @@ Install via Nuget
 ## Usage
 
 ### Fields
+
 -   Make your class `partial` 
 -   Declare a `private` _field_ - This is the backing field for which the property will be generated for.
 -   Add the `[NotifyValueChange]` attribute to the field
@@ -51,6 +52,7 @@ person.Name = ""; // Event will fire and log to the console "Name was: 'Tom' and
 ```
 
 ### Computed Properties
+
 If you have a property that has its value computed based on the value of a backing field with a `[NotifyValueChange]` attribute, then this should automatically produce an event to subscribe to also.
 This event will fire when any of the backing field's value changes.
 
@@ -83,6 +85,7 @@ person.LastName = "Longhurst"; // Will output The Person's Full Name was: 'Tom J
 ```
 
 ### Interfaces
+
 If your class implements an interface and you want this event to be exposed on the interface, then:
 
 -   Make your interface partial
@@ -99,7 +102,7 @@ public partial interface IPerson
 
 ### Class Attributes
 
-**NotifyAnyValueChange**
+#### NotifyAnyValueChange
 
 Any field with the `[NotifyValueChange]` attribute will also fire an any value changed event
 
@@ -124,7 +127,7 @@ person.OnAnyValueChange += (sender, eventArgs) =>
 };
 ```
 
-**NotifyTypeValueChange**
+#### NotifyTypeValueChange\*
 
 Any field with the `[NotifyValueChange]` attribute will also fire an type specific value changed event if that type was passed into the `[NotifyTypeValueChange(type)]` attribute
 
