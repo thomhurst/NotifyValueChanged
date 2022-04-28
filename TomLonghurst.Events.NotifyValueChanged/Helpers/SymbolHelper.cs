@@ -7,7 +7,7 @@ namespace TomLonghurst.Events.NotifyValueChanged.Helpers;
 
 internal static class SymbolHelper
 {
-    public static TValue? GetAttributePropertyValue<TAttribute, TValue>(ISymbol symbol, Expression<Func<TAttribute, TValue>> propertyNameExpression)
+    public static TValue? GetAttributePropertyValue<TAttribute, TValue>(this ISymbol symbol, Expression<Func<TAttribute, TValue>> propertyNameExpression)
     {
         var attribute = symbol?.GetAttributes().FirstOrDefault(x => x.AttributeClass.ToDisplayString() == typeof(TAttribute).FullName);
         if (attribute == null)

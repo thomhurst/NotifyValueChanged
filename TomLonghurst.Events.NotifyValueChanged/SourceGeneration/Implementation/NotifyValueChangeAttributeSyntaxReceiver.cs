@@ -1,5 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
+using TomLonghurst.Events.NotifyValueChanged.Extensions;
+using TomLonghurst.Events.NotifyValueChanged.Helpers;
 
 namespace TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation;
 
@@ -69,11 +72,28 @@ internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
 
                 var getterNode = location.SourceTree.GetRoot().FindNode(location.SourceSpan);
 
-                foreach (var nodeSymbol in getterNode.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>()
-                             .Select(node => context.SemanticModel.GetSymbolInfo(node).Symbol))
+                foreach (var node in getterNode.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
                 {
-                    if (IsBasedOnNotifyField(nodeSymbol, context, out fieldSymbol))
+                    var nodeSymbol = context.SemanticModel.GetSymbolInfo(node).Symbol;
+                    if (nodeSymbol != null && IsBasedOnNotifyField(nodeSymbol, context, out fieldSymbol))
                     {
+                        return true;
+                    }
+
+                    var fieldDeclarationSyntaxes = node.GetLocation().SourceTree.GetRoot().DescendantNodes()
+                        .OfType<FieldDeclarationSyntax>();
+
+                    var symbols = fieldDeclarationSyntaxes.SelectMany(x => x.Declaration.Variables)
+                        .Select(x => context.SemanticModel.GetDeclaredSymbol(x));
+                    
+                    var fields = symbols.OfType<IFieldSymbol>();
+
+                    var fieldWithCustomPropertyNameAttribute = fields.FirstOrDefault(x =>
+                        x.GetAttributePropertyValue<NotifyValueChangeAttribute, string>(a => a.PropertyName) == node.Identifier.Text);
+
+                    if (fieldWithCustomPropertyNameAttribute is not null)
+                    {
+                        fieldSymbol = fieldWithCustomPropertyNameAttribute;
                         return true;
                     }
                 }

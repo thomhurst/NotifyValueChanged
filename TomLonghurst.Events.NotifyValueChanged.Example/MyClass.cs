@@ -64,4 +64,11 @@ public partial class MyClass : IMyClass
 
     [NotifyValueChange(PropertyName = "FOO")]
     private string _stringWithCustomPropertyName;
+    private string StringDependentOnStringWithCustomPropertyName => $"I am dependent on {FOO}";
+    private string StringDependentOnStringWithCustomPropertyName2 => $"I am also dependent on {FOO}";
+
+    [NotifyValueChange(PropertyName = "BAR")]
+    private int _intWithCustomerPropertyName;
+    private string StringDependentOnIntWithCustomPropertyName => $"I am dependent on {BAR}";
+    private string StringDependentOnIntWithCustomPropertyName2 => $"I am also dependent on {BAR}";
 }
