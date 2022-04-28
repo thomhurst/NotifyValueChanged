@@ -146,7 +146,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             
             if (shouldGenerateAnyValueChangeImplementation)
             {
-                classBuilder.WriteLine($"OnAnyValueChanged(previousValue, value, previousValueDateTimeSet, _dateTime{propertyName}Set);");
+                classBuilder.WriteLine($"NotifyAnyValueChanged(previousValue, value, previousValueDateTimeSet, _dateTime{propertyName}Set);");
             }
 
             classBuilder.WriteLine("}");
@@ -213,7 +213,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         }
         
         classBuilder.WriteLine($"public event {nameof(ValueChangedEventHandler<object>)}<object> OnAnyValueChange;");
-        classBuilder.WriteLine("private void OnAnyValueChanged(object previousValue, object newValue, DateTimeOffset? previousValueDateTimeSet, DateTimeOffset? newValueDateTimeSet, [CallerMemberName] string propertyName = null)");
+        classBuilder.WriteLine("private void NotifyAnyValueChanged(object previousValue, object newValue, DateTimeOffset? previousValueDateTimeSet, DateTimeOffset? newValueDateTimeSet, [CallerMemberName] string propertyName = null)");
         classBuilder.WriteLine("{");
         classBuilder.WriteLine($"OnAnyValueChange?.Invoke(this, new {nameof(ValueChangedEventArgs<object>)}<object>(propertyName, previousValue, newValue, previousValueDateTimeSet, newValueDateTimeSet));");
         classBuilder.WriteLine("}");
