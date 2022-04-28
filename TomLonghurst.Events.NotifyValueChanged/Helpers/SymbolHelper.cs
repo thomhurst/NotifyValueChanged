@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Linq.Expressions;
 using Microsoft.CodeAnalysis;
+using TomLonghurst.Events.NotifyValueChanged.SourceGeneration;
 using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation;
 
 namespace TomLonghurst.Events.NotifyValueChanged.Helpers;
@@ -9,7 +10,7 @@ internal static class SymbolHelper
 {
     public static TValue? GetAttributePropertyValue<TAttribute, TValue>(this ISymbol symbol, Expression<Func<TAttribute, TValue>> propertyNameExpression)
     {
-        var attribute = symbol?.GetAttributes().FirstOrDefault(x => x.AttributeClass.ToDisplayString() == typeof(TAttribute).FullName);
+        var attribute = symbol?.GetAttributes().FirstOrDefault(x => x.AttributeClass.ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == typeof(TAttribute).FullName);
         if (attribute == null)
         {
             return default;

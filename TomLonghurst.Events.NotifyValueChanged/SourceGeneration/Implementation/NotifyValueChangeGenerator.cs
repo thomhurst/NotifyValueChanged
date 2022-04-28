@@ -42,7 +42,8 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             var containingClass = containingClassGroup.Key;
             var namespaceSymbol = containingClass.ContainingNamespace;
             
-            var typesWithTypeValueChangeEvents = containingClass.GetAttributes()
+            var typesWithTypeValueChangeEvents = containingClass
+                .GetAttributes()
                 .Where(x => x.AttributeClass.ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == typeof(NotifyTypeValueChangeAttribute).FullName)
                 .Select(x => x.ConstructorArguments.First().Value as ITypeSymbol);
 

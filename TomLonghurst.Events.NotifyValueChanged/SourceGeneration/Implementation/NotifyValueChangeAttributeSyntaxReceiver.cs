@@ -44,7 +44,7 @@ internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
         var variableDeclaration = fieldDeclaration.Declaration.Variables;
         foreach (var field in variableDeclaration.Select(variable => context.SemanticModel.GetDeclaredSymbol(variable)))
         {
-            if (field is IFieldSymbol fieldInfo && fieldInfo.GetAttributes().Any(x => x.AttributeClass.ToDisplayString() == typeof(NotifyValueChangeAttribute).FullName))
+            if (field is IFieldSymbol fieldInfo && fieldInfo.HasAttribute<NotifyValueChangeAttribute>())
             {
                 IdentifiedFields.Add(fieldInfo);
             }
@@ -58,7 +58,7 @@ internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
         {
             case null:
                 break;
-            case IFieldSymbol castFieldSymbol when castFieldSymbol.GetAttributes().Any(x => x.AttributeClass.ToDisplayString() == typeof(NotifyValueChangeAttribute).FullName):
+            case IFieldSymbol castFieldSymbol when castFieldSymbol.HasAttribute<NotifyValueChangeAttribute>():
                 fieldSymbols.Add(castFieldSymbol);
                 break;
             case IPropertySymbol propertySymbol:

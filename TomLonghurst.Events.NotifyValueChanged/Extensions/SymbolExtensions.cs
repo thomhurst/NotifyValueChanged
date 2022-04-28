@@ -53,6 +53,11 @@ internal static class SymbolExtensions
         return symbol.GetAttributes().FirstOrDefault(x => x.AttributeClass.ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == typeof(NotifyValueChangeAttribute).FullName);
     }
 
+    public static bool HasAttribute<TAttribute>(this ISymbol symbol) where TAttribute : Attribute
+    {
+        return symbol.GetAttributes().Any(x => x.AttributeClass.ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == typeof(TAttribute).FullName);
+    }
+
     private static IEnumerable<string> GetGenericTypeArguments(ITypeSymbol type)
     {
         if (type is not INamedTypeSymbol namedTypeSymbol || !namedTypeSymbol.TypeArguments.Any())

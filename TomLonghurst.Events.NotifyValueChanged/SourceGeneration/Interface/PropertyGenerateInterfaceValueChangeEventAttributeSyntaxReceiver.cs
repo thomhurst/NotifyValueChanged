@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using TomLonghurst.Events.NotifyValueChanged.Extensions;
 
 namespace TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Interface;
 
@@ -17,7 +18,7 @@ internal class PropertyGenerateInterfaceValueChangeEventAttributeSyntaxReceiver 
         var property = context.SemanticModel.GetDeclaredSymbol(propertyDeclaration);
 
         if(property is IPropertySymbol propertySymbol 
-           && property.GetAttributes().Any(x => x.AttributeClass.ToDisplayString() == typeof(GenerateInterfaceValueChangeEventAttribute).FullName))
+           && property.HasAttribute<GenerateInterfaceValueChangeEventAttribute>())
         {
             IdentifiedProperties.Add(propertySymbol);
         }
