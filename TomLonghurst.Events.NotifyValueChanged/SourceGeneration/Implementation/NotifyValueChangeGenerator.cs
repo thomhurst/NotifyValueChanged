@@ -287,17 +287,22 @@ public class NotifyValueChangeGenerator : ISourceGenerator
 
     private static bool ShouldGenerateTypeValueChangeImplementation(ISymbol symbol, INamedTypeSymbol @class)
     {
-        if (symbol is IFieldSymbol field)
+
+        ITypeSymbol type;
+
+        switch (symbol)
         {
-            return @class.GetAttributes().Any(x => x.AttributeClass.ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == typeof(NotifyTypeValueChangeAttribute).FullName && (x.ConstructorArguments.First().Value as ITypeSymbol).ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == field.Type.ToDisplayString(SymbolDisplayFormats.NamespaceAndType));
+            case IFieldSymbol field:
+                type = field.Type;
+                break;
+            case IPropertySymbol property:
+                type = property.Type;
+                break;
+            default:
+                return false;
         }
 
-        if (symbol is IPropertySymbol property)
-        {
-            return @class.GetAttributes().Any(x => x.AttributeClass.ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == typeof(NotifyTypeValueChangeAttribute).FullName && (x.ConstructorArguments.First().Value as ITypeSymbol).ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == property.Type.ToDisplayString(SymbolDisplayFormats.NamespaceAndType));
-        }
-
-        return false;
+        return @class.GetAttributes().Any(x => x.AttributeClass.ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == typeof(NotifyTypeValueChangeAttribute).FullName && (x.ConstructorArguments.First().Value as ITypeSymbol).ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == type.ToDisplayString(SymbolDisplayFormats.NamespaceAndType));
     }
     
     private static bool ShouldGenerateAnyValueChangeImplementation(INamedTypeSymbol @class)
