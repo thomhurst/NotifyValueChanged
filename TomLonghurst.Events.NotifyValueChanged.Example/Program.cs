@@ -3,9 +3,9 @@
 using TomLonghurst.Events.NotifyValueChanged.Example;
 
 var myClass = new MyClass();
-myClass.OnMyNameValueChange += (_, eventArgs) =>
+myClass.OnAnyValueChange += (_, eventArgs) =>
 {
-    Console.WriteLine($"Name was: {eventArgs.PreviousValue} and is now {eventArgs.NewValue}\n");
+    Console.WriteLine($"Property Name: {eventArgs.PropertyName} | Previous Value: {eventArgs.PreviousValue} | New Value: {eventArgs.NewValue}\n");
 };
 
 myClass.OnMyAgeValueChange += (_, eventArgs) =>

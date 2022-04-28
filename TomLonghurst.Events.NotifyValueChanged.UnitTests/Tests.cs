@@ -1,3 +1,4 @@
+using System;
 using Moq;
 using NUnit.Framework;
 using TomLonghurst.Events.NotifyValueChanged.UnitTests;
@@ -99,5 +100,22 @@ public class Tests
         
         _dummyInterface.Verify(x => x.TwoStrings(null, "Hi", nameof(MyClass.MyString1)), Times.Once);
         _dummyInterface.Verify(x => x.TwoStrings(null, "Hello", nameof(MyClass.MyString2)), Times.Once);
+    }
+
+    [Test]
+    public void Computed_Property_Trigger()
+    {
+        var person = new Person 
+        {
+            FirstName = "Tom",
+            LastName = "Jones"
+        };
+
+        person.OnFullNameValueChange += (sender, eventArgs) =>
+        {
+            Console.WriteLine($"The Person's Full Name was: '{eventArgs.PreviousValue}' and is now '{eventArgs.NewValue}'\n");
+        };
+
+        person.LastName = "Longhurst"; // Will output The Person's Full Name was: 'Tom Jones' and is now 'Tom Longhurst'
     }
 }

@@ -94,7 +94,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
 
         foreach(var field in fields) {
             var propertiesDependentOnField = _notifyValueChangeAttributeSyntaxReceiver.IdentifiedPropertiesAndAssociatedFields
-                .Where(x => SymbolEqualityComparer.Default.Equals(x.Value, field)).ToList();
+                .Where(x => x.Value.Contains(field, SymbolEqualityComparer.Default)).ToList();
             
             var fullyQualifiedFieldType = field.Type.GetFullyQualifiedType();
             var simpleFieldType = field.Type.GetSimpleTypeName();

@@ -9,7 +9,7 @@ namespace TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation
 internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
 {
     public List<IFieldSymbol> IdentifiedFields { get; } = new();
-    public Dictionary<IPropertySymbol, IFieldSymbol> IdentifiedPropertiesAndAssociatedFields { get; } = new();
+    public Dictionary<IPropertySymbol, List<IFieldSymbol>> IdentifiedPropertiesAndAssociatedFields { get; } = new();
 
     public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
     {
@@ -33,7 +33,7 @@ internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
             return;
         }
 
-        if (IsBasedOnNotifyField(property, context, out var associatedField))
+        if (IsBasedOnNotifyFields(property, context, out var associatedField))
         {
             IdentifiedPropertiesAndAssociatedFields.Add(propertySymbol, associatedField);
         }
@@ -51,23 +51,23 @@ internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
         }
     }
     
-    private bool IsBasedOnNotifyField(ISymbol? symbol, GeneratorSyntaxContext context, out IFieldSymbol? fieldSymbol)
+    private bool IsBasedOnNotifyFields(ISymbol? symbol, GeneratorSyntaxContext context, out List<IFieldSymbol> fieldSymbols)
     {
-        fieldSymbol = null;
+        fieldSymbols = new List<IFieldSymbol>();
         switch (symbol)
         {
             case null:
-                return false;
+                break;
             case IFieldSymbol castFieldSymbol when castFieldSymbol.GetAttributes().Any(x => x.AttributeClass.ToDisplayString() == typeof(NotifyValueChangeAttribute).FullName):
-                fieldSymbol = castFieldSymbol;
-                return true;
+                fieldSymbols.Add(castFieldSymbol);
+                break;
             case IPropertySymbol propertySymbol:
             {
                 var location = propertySymbol.GetMethod.Locations.FirstOrDefault();
 
                 if (location is null)
                 {
-                    return false;
+                    break;
                 }
 
                 var getterNode = location.SourceTree.GetRoot().FindNode(location.SourceSpan);
@@ -75,9 +75,10 @@ internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
                 foreach (var node in getterNode.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
                 {
                     var nodeSymbol = context.SemanticModel.GetSymbolInfo(node).Symbol;
-                    if (nodeSymbol != null && IsBasedOnNotifyField(nodeSymbol, context, out fieldSymbol))
+                    if (nodeSymbol != null && IsBasedOnNotifyFields(nodeSymbol, context, out var innerFieldSymbols))
                     {
-                        return true;
+                        fieldSymbols.AddRange(innerFieldSymbols);
+                        continue;
                     }
 
                     var fieldDeclarationSyntaxes = node.GetLocation().SourceTree.GetRoot().DescendantNodes()
@@ -88,13 +89,14 @@ internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
                     
                     var fields = symbols.OfType<IFieldSymbol>();
 
-                    var fieldWithCustomPropertyNameAttribute = fields.FirstOrDefault(x =>
-                        x.GetAttributePropertyValue<NotifyValueChangeAttribute, string>(a => a.PropertyName) == node.Identifier.Text);
+                    var fieldsWithCustomPropertyNameAttribute = fields.Where(x =>
+                        x.GetAttributePropertyValue<NotifyValueChangeAttribute, string>(a => a.PropertyName) == node.Identifier.Text)
+                        .ToList();
 
-                    if (fieldWithCustomPropertyNameAttribute is not null)
+                    if (fieldsWithCustomPropertyNameAttribute.Any())
                     {
-                        fieldSymbol = fieldWithCustomPropertyNameAttribute;
-                        return true;
+                        fieldSymbols.AddRange(fieldsWithCustomPropertyNameAttribute);
+                        continue;
                     }
                 }
 
@@ -102,6 +104,6 @@ internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
             }
         }
 
-        return false;
+        return fieldSymbols.Any();
     }
 }
