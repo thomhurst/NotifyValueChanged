@@ -64,7 +64,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         }
 
         var interfaceSource = WriteTypeEventInterfaces(context, typeEventsThatNeedInterfacesGenerating, allFields, allProperties);
-        context.AddSource($"INotifyValueChangedInterfaces_NotifyValueChanged.generated", SourceText.From(interfaceSource, Encoding.UTF8));
+        context.AddSource("INotifyValueChangedInterfaces_NotifyValueChanged.generated", SourceText.From(interfaceSource, Encoding.UTF8));
     }
     
     private string GenerateClass(GeneratorExecutionContext context, INamedTypeSymbol @class, INamespaceSymbol @namespace, List<IFieldSymbol> fields, List<IPropertySymbol> properties) {
@@ -117,7 +117,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
 
             if (propertiesDependentOnField.Any())
             {
-                classBuilder.WriteLine($"var previousComputedPropertyValues = new Dictionary<string, object>();");
+                classBuilder.WriteLine("var previousComputedPropertyValues = new Dictionary<string, object>();");
             }
 
             foreach (var propertyDependentOnField in propertiesDependentOnField)
@@ -210,7 +210,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         }
         
         classBuilder.WriteLine($"public event {nameof(ValueChangedEventHandler<object>)}<object> OnAnyValueChange;");
-        classBuilder.WriteLine($"private void OnAnyValueChanged(object previousValue, object newValue, DateTimeOffset? previousValueDateTimeSet, DateTimeOffset? newValueDateTimeSet, [CallerMemberName] string propertyName = null)");
+        classBuilder.WriteLine("private void OnAnyValueChanged(object previousValue, object newValue, DateTimeOffset? previousValueDateTimeSet, DateTimeOffset? newValueDateTimeSet, [CallerMemberName] string propertyName = null)");
         classBuilder.WriteLine("{");
         classBuilder.WriteLine($"OnAnyValueChange?.Invoke(this, new {nameof(ValueChangedEventArgs<object>)}<object>(propertyName, previousValue, newValue, previousValueDateTimeSet, newValueDateTimeSet));");
         classBuilder.WriteLine("}");
