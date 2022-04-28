@@ -19,6 +19,7 @@ Install via Nuget
 
 ## Usage
 
+### Fields
 -   Make your class `partial` 
 -   Declare a `private` _field_ - This is the backing field for which the property will be generated for.
 -   Add the `[NotifyValueChange]` attribute to the field
@@ -49,6 +50,33 @@ person.Name = "Tom"; // No event will fire because the value hasn't changed
 person.Name = ""; // Event will fire and log to the console "Name was: 'Tom' and is now ''"
 ```
 
+### Computed Properties
+If you have a property that has its value computed based on the value of a backing field with a `[NotifyValueChange]` attribute, then this should automatically produce an event to subscribe to also.
+This event will fire when any of the backing field's value changes.
+
+```csharp
+public partial class Person
+{
+    [NotifyValueChange]
+    private string _firstName;
+    
+    [NotifyValueChange]
+    private string _lastName;
+    
+    public string FullName => $"{_firstName} {_lastName}"
+}
+```
+
+```csharp
+var person = new Person();
+
+person.OnFullNameValueChange += (sender, eventArgs) =>
+{
+    Console.WriteLine($"The Person's Full Name was: '{eventArgs.PreviousValue}' and is now '{eventArgs.NewValue}'\n");
+};
+```
+
+### Interfaces
 If your class implements an interface and you want this event to be exposed on the interface, then:
 
 -   Make your interface partial
@@ -61,4 +89,54 @@ public partial interface IPerson
     [GenerateInterfaceValueChangeEvent]
     private string Name { get; }
 }
+```
+
+### Class Attributes
+
+**NotifyAnyValueChange**
+Any field with the `[NotifyValueChange]` attribute will also fire an any value changed event
+
+```csharp
+[NotifyAnyValueChange]
+public partial class Person
+{
+    [NotifyValueChange]
+    private string _name; // Will fire the AnyValueChange event because it has the NotifyValueChange attribute
+    
+    [NotifyValueChange]
+    private int _age; // Will fire the AnyValueChange event because it has the NotifyValueChange attribute
+}
+```
+
+```csharp
+var person = new Person();
+
+person.OnAnyValueChange += (sender, eventArgs) =>
+{
+    Console.WriteLine($"Property Name: {eventArgs.PropertyName} | Previous Value: {eventArgs.PreviousValue} | New Value: {eventArgs.NewValue}\n");
+};
+```
+
+**NotifyTypeValueChange**
+Any field with the `[NotifyValueChange]` attribute will also fire an type specific value changed event if that type was passed into the `[NotifyTypeValueChange(type)] attribute
+
+```csharp
+[NotifyTypeValueChange(typeof(string))]
+public partial class Person
+{
+    [NotifyValueChange]
+    private string _name; // Will fire the OnTypeStringValueChange event because it has the NotifyValueChange attribute combined with the NotifyTypeValueChange(string) attribute
+    
+    [NotifyValueChange]
+    private int _age; // Will not fire the OnTypeStringValueChange event because it is not a string
+}
+```
+
+```csharp
+var person = new Person();
+
+person.OnTypeStringValueChange += (sender, eventArgs) =>
+{
+    Console.WriteLine($"Property Name: {eventArgs.PropertyName} | Previous Value: {eventArgs.PreviousValue} | New Value: {eventArgs.NewValue}\n");
+};
 ```
