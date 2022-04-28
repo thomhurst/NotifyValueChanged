@@ -6,7 +6,7 @@ namespace TomLonghurst.Events.NotifyValueChanged.UnitTests;
 [NotifyTypeValueChange(typeof(string))]
 public partial class MyClass
 {
-    [NotifyValueChange(GenerateGenericTypeValueChangeEvent = true)]
+    [NotifyValueChange]
     private string _myString1;
     
     [NotifyValueChange]

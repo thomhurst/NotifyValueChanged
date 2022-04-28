@@ -4,6 +4,7 @@ using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation;
 namespace TomLonghurst.Events.NotifyValueChanged.Example;
 
 [NotifyAnyValueChange]
+[NotifyTypeValueChange(typeof(Pipe))]
 public partial class MyClass : IMyClass
 {
     [NotifyValueChange]
@@ -54,6 +55,8 @@ public partial class MyClass : IMyClass
     [NotifyValueChange]
     private IDictionary<string?, int?>? _nullableGenericWithTwoTypeParametersNullableBothType2;
 
-    [NotifyValueChange(GenerateGenericTypeValueChangeEvent = true)]
+    [NotifyValueChange]
     private Pipe _fieldWithGenericTypeEventEnabled;
+
+    public string HelloString => $"{_myName} is {_myAge}";
 }

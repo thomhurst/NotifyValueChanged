@@ -15,7 +15,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
 {
     public void Initialize(GeneratorInitializationContext context)
     {
-        context.RegisterForSyntaxNotifications(() => new FieldNotifyValueChangeAttributeSyntaxReceiver());
+        context.RegisterForSyntaxNotifications(() => new NotifyValueChangeAttributeSyntaxReceiver());
     }
 
     public void Execute(GeneratorExecutionContext context)
@@ -26,7 +26,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             Debugger.Launch();
         }
 #endif
-        if (context.SyntaxContextReceiver is not FieldNotifyValueChangeAttributeSyntaxReceiver syntaxReciever)
+        if (context.SyntaxContextReceiver is not NotifyValueChangeAttributeSyntaxReceiver syntaxReciever)
         {
             return;
         }
