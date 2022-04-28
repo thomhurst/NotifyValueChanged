@@ -17,6 +17,13 @@ If this library helped you, consider buying me a coffee
 Install via Nuget
 `Install-Package TomLonghurst.Events.NotifyValueChanged`
 
+## Features
+-   Auto-generated properties for backing fields that fire events 
+-   Events that fire for computed properties
+-   Events that fire for specific types
+-   Events that fire for any type
+-   Custom property names
+
 ## Usage
 
 ### Fields
