@@ -38,7 +38,7 @@ public class GenerateInterfaceValueChangeEventGenerator : ISourceGenerator
     
     private string GenerateInterface(GeneratorExecutionContext context, INamedTypeSymbol @interface, INamespaceSymbol @namespace, List<IPropertySymbol> properties) {
         var stringWriter = new StringWriter();
-        var classBuilder = new IndentedTextWriter(stringWriter);
+        var classBuilder = new CodeGenerationTextWriter(stringWriter);
 
         classBuilder.WriteLine("using System;");
         classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventArgs<>)));
@@ -48,16 +48,16 @@ public class GenerateInterfaceValueChangeEventGenerator : ISourceGenerator
         classBuilder.WriteLine($"namespace {@namespace.ToDisplayString()}");
         classBuilder.WriteLine("{");
         
-        classBuilder.WriteLine($"\tpublic partial interface {@interface.Name}");
-        classBuilder.WriteLine("\t{");
+        classBuilder.WriteLine($"public partial interface {@interface.Name}");
+        classBuilder.WriteLine("{");
 
         foreach(var property in properties) {
             var fullyQualifiedFieldType = property.Type.GetFullyQualifiedType();
-            classBuilder.WriteLine($"\t\tpublic event {nameof(ValueChangedEventHandler<object>)}<{fullyQualifiedFieldType}> On{property.Name}ValueChange;");
+            classBuilder.WriteLine($"public event {nameof(ValueChangedEventHandler<object>)}<{fullyQualifiedFieldType}> On{property.Name}ValueChange;");
             classBuilder.WriteLine();
         }
 
-        classBuilder.WriteLine("\t}");
+        classBuilder.WriteLine("}");
         classBuilder.WriteLine("}");
 
         classBuilder.Flush();

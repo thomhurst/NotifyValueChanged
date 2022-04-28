@@ -67,7 +67,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
     
     private string GenerateClass(GeneratorExecutionContext context, INamedTypeSymbol @class, INamespaceSymbol @namespace, List<IFieldSymbol> fields, List<IPropertySymbol> properties) {
         var stringWriter = new StringWriter();
-        var classBuilder = new IndentedTextWriter(stringWriter);
+        var classBuilder = new CodeGenerationTextWriter(stringWriter);
         classBuilder.WriteLine("using System;");
         classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventArgs<>)));
         classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventHandler<>)));
@@ -76,7 +76,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         classBuilder.WriteLine($"namespace {@namespace.ToDisplayString()}");
         classBuilder.WriteLine("{");
         
-        classBuilder.WriteLine($"\tpublic partial class {@class.Name}");
+        classBuilder.WriteLine($"public partial class {@class.Name}");
         
         var listOfInterfaces = fields.Concat<ISymbol>(properties).Where(x => ShouldGenerateTypeValueChangeImplementation(x, @class)).Select(x => x.GetSymbolType().GetSimpleTypeName()).Select(simpleFieldType => $"INotifyType{simpleFieldType}ValueChanged").Distinct().ToList();
         var shouldGenerateAnyValueChangeImplementation = ShouldGenerateAnyValueChangeImplementation(@class);
@@ -87,12 +87,12 @@ public class NotifyValueChangeGenerator : ISourceGenerator
 
         if (listOfInterfaces.Any())
         {
-            classBuilder.WriteLine("\t:");
+            classBuilder.WriteLine(":");
             var commaSeparatedListOfInterfaces = listOfInterfaces.Aggregate((a, x) => $"{a}, {x}");
-            classBuilder.WriteLine($"\t{commaSeparatedListOfInterfaces}"); 
+            classBuilder.WriteLine($"{commaSeparatedListOfInterfaces}"); 
         }
 
-        classBuilder.WriteLine("\t{");
+        classBuilder.WriteLine("{");
 
         foreach(var field in fields) {
             var propertiesDependentOnField = _notifyValueChangeAttributeSyntaxReceiver.IdentifiedPropertiesAndAssociatedFields
@@ -102,47 +102,50 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             var simpleFieldType = field.Type.GetSimpleTypeName();
             var fieldName = field.Name;
             var propertyName = field.GetPropertyName();
-            classBuilder.WriteLine($"\t\tprivate DateTimeOffset _dateTime{propertyName}Set;");
-            classBuilder.WriteLine($"\t\tpublic {fullyQualifiedFieldType} {propertyName}");
-            classBuilder.WriteLine("\t\t{");
-            classBuilder.WriteLine($"\t\t\tget => {fieldName};");
-            classBuilder.WriteLine("\t\t\tset");
-            classBuilder.WriteLine("\t\t\t{");
-            classBuilder.WriteLine($"\t\t\t\tif({fieldName} == value)");
-            classBuilder.WriteLine("\t\t\t\t{");
-            classBuilder.WriteLine("\t\t\t\t\treturn;");
-            classBuilder.WriteLine("\t\t\t\t}");
-            
-            classBuilder.WriteLine($"\t\t\t\tvar previousComputedPropertyValues = new Dictionary<string, object>();");
-            
-            foreach (var propertyDependentOnField in propertiesDependentOnField)
+            classBuilder.WriteLine($"private DateTimeOffset _dateTime{propertyName}Set;");
+            classBuilder.WriteLine($"public {fullyQualifiedFieldType} {propertyName}");
+            classBuilder.WriteLine("{");
+            classBuilder.WriteLine($"get => {fieldName};");
+            classBuilder.WriteLine("set");
+            classBuilder.WriteLine("{");
+            classBuilder.WriteLine($"if({fieldName} == value)");
+            classBuilder.WriteLine("{");
+            classBuilder.WriteLine("return;");
+            classBuilder.WriteLine("}");
+
+            if (propertiesDependentOnField.Any())
             {
-                classBuilder.WriteLine($"\t\t\t\tpreviousComputedPropertyValues.Add(\"{propertyDependentOnField.Key.Name}\", {propertyDependentOnField.Key.Name});");
+                classBuilder.WriteLine($"var previousComputedPropertyValues = new Dictionary<string, object>();");
             }
-            
-            classBuilder.WriteLine($"\t\t\t\tvar previousValueDateTimeSet = _dateTime{propertyName}Set;");
-            classBuilder.WriteLine($"\t\t\t\tvar previousValue = {fieldName};");
-            classBuilder.WriteLine($"\t\t\t\t{fieldName} = value;"); 
-            classBuilder.WriteLine($"\t\t\t\t_dateTime{propertyName}Set = DateTimeOffset.UtcNow;");
-            classBuilder.WriteLine($"\t\t\t\tNotify{propertyName}ValueChanged(previousValue, value, previousValueDateTimeSet, _dateTime{propertyName}Set);");
 
             foreach (var propertyDependentOnField in propertiesDependentOnField)
             {
-                classBuilder.WriteLine($"\t\t\t\tNotify{propertyDependentOnField.Key.Name}ValueChanged(({propertyDependentOnField.Key.Type.GetFullyQualifiedType()}) previousComputedPropertyValues[\"{propertyDependentOnField.Key.Name}\"], ({propertyDependentOnField.Key.Type.GetFullyQualifiedType()}) {propertyDependentOnField.Key.Name}, previousValueDateTimeSet, _dateTime{propertyName}Set);");
+                classBuilder.WriteLine($"previousComputedPropertyValues.Add(\"{propertyDependentOnField.Key.Name}\", {propertyDependentOnField.Key.Name});");
+            }
+            
+            classBuilder.WriteLine($"var previousValueDateTimeSet = _dateTime{propertyName}Set;");
+            classBuilder.WriteLine($"var previousValue = {fieldName};");
+            classBuilder.WriteLine($"{fieldName} = value;"); 
+            classBuilder.WriteLine($"_dateTime{propertyName}Set = DateTimeOffset.UtcNow;");
+            classBuilder.WriteLine($"Notify{propertyName}ValueChanged(previousValue, value, previousValueDateTimeSet, _dateTime{propertyName}Set);");
+
+            foreach (var propertyDependentOnField in propertiesDependentOnField)
+            {
+                classBuilder.WriteLine($"Notify{propertyDependentOnField.Key.Name}ValueChanged(({propertyDependentOnField.Key.Type.GetFullyQualifiedType()}) previousComputedPropertyValues[\"{propertyDependentOnField.Key.Name}\"], ({propertyDependentOnField.Key.Type.GetFullyQualifiedType()}) {propertyDependentOnField.Key.Name}, previousValueDateTimeSet, _dateTime{propertyName}Set);");
             }
 
             if (ShouldGenerateTypeValueChangeImplementation(field, @class))
             {
-                classBuilder.WriteLine($"\t\t\t\tOnType{simpleFieldType}ValueChanged(previousValue, value, previousValueDateTimeSet, _dateTime{propertyName}Set);");
+                classBuilder.WriteLine($"OnType{simpleFieldType}ValueChanged(previousValue, value, previousValueDateTimeSet, _dateTime{propertyName}Set);");
             }
             
             if (shouldGenerateAnyValueChangeImplementation)
             {
-                classBuilder.WriteLine($"\t\t\t\tOnAnyValueChanged(previousValue, value, previousValueDateTimeSet, _dateTime{propertyName}Set);");
+                classBuilder.WriteLine($"OnAnyValueChanged(previousValue, value, previousValueDateTimeSet, _dateTime{propertyName}Set);");
             }
 
-            classBuilder.WriteLine("\t\t\t}");
-            classBuilder.WriteLine("\t\t}");
+            classBuilder.WriteLine("}");
+            classBuilder.WriteLine("}");
             classBuilder.WriteLine();
             
             classBuilder.WriteLine(GenerateClassValueChangedImplementation(propertyName, fullyQualifiedFieldType));
@@ -156,7 +159,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         WriteTypeChangeImplementations(classBuilder, fields, @class);
         WriteAnyChangeImplementations(classBuilder, @class);
         
-        classBuilder.WriteLine("\t}");
+        classBuilder.WriteLine("}");
         classBuilder.WriteLine("}");
         
         classBuilder.Flush();
@@ -188,11 +191,11 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             
             interfacesCreated.Add(interfaceName);
             
-            classBuilder.WriteLine($"\t\tpublic event {nameof(ValueChangedEventHandler<object>)}<{fullyQualifiedFieldType}> OnType{simpleFieldType}ValueChange;");
-            classBuilder.WriteLine($"\t\tprivate void OnType{simpleFieldType}ValueChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, DateTimeOffset? previousValueDateTimeSet, DateTimeOffset? newValueDateTimeSet, [CallerMemberName] string propertyName = null)");
-            classBuilder.WriteLine("\t\t{");
-            classBuilder.WriteLine($"\t\t\tOnType{simpleFieldType}ValueChange?.Invoke(this, new {nameof(ValueChangedEventArgs<object>)}<{fullyQualifiedFieldType}>(propertyName, previousValue, newValue, previousValueDateTimeSet, newValueDateTimeSet));");
-            classBuilder.WriteLine("\t\t}");
+            classBuilder.WriteLine($"public event {nameof(ValueChangedEventHandler<object>)}<{fullyQualifiedFieldType}> OnType{simpleFieldType}ValueChange;");
+            classBuilder.WriteLine($"private void OnType{simpleFieldType}ValueChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, DateTimeOffset? previousValueDateTimeSet, DateTimeOffset? newValueDateTimeSet, [CallerMemberName] string propertyName = null)");
+            classBuilder.WriteLine("{");
+            classBuilder.WriteLine($"OnType{simpleFieldType}ValueChange?.Invoke(this, new {nameof(ValueChangedEventArgs<object>)}<{fullyQualifiedFieldType}>(propertyName, previousValue, newValue, previousValueDateTimeSet, newValueDateTimeSet));");
+            classBuilder.WriteLine("}");
             classBuilder.WriteLine();
         }
     }
@@ -204,11 +207,11 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             return;
         }
         
-        classBuilder.WriteLine($"\t\tpublic event {nameof(ValueChangedEventHandler<object>)}<object> OnAnyValueChange;");
-        classBuilder.WriteLine($"\t\tprivate void OnAnyValueChanged(object previousValue, object newValue, DateTimeOffset? previousValueDateTimeSet, DateTimeOffset? newValueDateTimeSet, [CallerMemberName] string propertyName = null)");
-        classBuilder.WriteLine("\t\t{");
-        classBuilder.WriteLine($"\t\t\tOnAnyValueChange?.Invoke(this, new {nameof(ValueChangedEventArgs<object>)}<object>(propertyName, previousValue, newValue, previousValueDateTimeSet, newValueDateTimeSet));");
-        classBuilder.WriteLine("\t\t}");
+        classBuilder.WriteLine($"public event {nameof(ValueChangedEventHandler<object>)}<object> OnAnyValueChange;");
+        classBuilder.WriteLine($"private void OnAnyValueChanged(object previousValue, object newValue, DateTimeOffset? previousValueDateTimeSet, DateTimeOffset? newValueDateTimeSet, [CallerMemberName] string propertyName = null)");
+        classBuilder.WriteLine("{");
+        classBuilder.WriteLine($"OnAnyValueChange?.Invoke(this, new {nameof(ValueChangedEventArgs<object>)}<object>(propertyName, previousValue, newValue, previousValueDateTimeSet, newValueDateTimeSet));");
+        classBuilder.WriteLine("}");
         classBuilder.WriteLine();
     }
 
@@ -217,7 +220,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         var interfacesCreated = new List<string>();
 
         var stringWriter = new StringWriter();
-        var classBuilder = new IndentedTextWriter(stringWriter);
+        var classBuilder = new CodeGenerationTextWriter(stringWriter);
         var notifyPropertyChangedSymbol = context.Compilation.GetTypeByMetadataName(typeof(ValueChangedEventHandler<>).FullName);
 
         classBuilder.WriteLine("using System;");
@@ -258,18 +261,17 @@ public class NotifyValueChangeGenerator : ISourceGenerator
 
         interfacesCreated.Add(interfaceName);
 
-        classBuilder.WriteLine($"\tpublic interface {interfaceName}");
-        classBuilder.WriteLine("\t{");
+        classBuilder.WriteLine($"public interface {interfaceName}");
+        classBuilder.WriteLine("{");
         classBuilder.WriteLine(
-            $"\t\tevent {nameof(ValueChangedEventHandler<object>)}<{fullyQualifiedFieldType}> OnType{simpleTypeName}ValueChange;");
-        classBuilder.WriteLine("\t}");
+            $"event {nameof(ValueChangedEventHandler<object>)}<{fullyQualifiedFieldType}> OnType{simpleTypeName}ValueChange;");
+        classBuilder.WriteLine("}");
         classBuilder.WriteLine();
     }
 
     private string GenerateClassValueChangedImplementation(string propertyName, string type)
     {
-        return $@"
-        public event ValueChangedEventHandler<{type}> On{propertyName}ValueChange;
+        return $@"public event ValueChangedEventHandler<{type}> On{propertyName}ValueChange;
         
         private void Notify{propertyName}ValueChanged({type} previousValue, {type} newValue, DateTimeOffset? previousValueDateTimeSet, DateTimeOffset? newValueDateTimeSet, [CallerMemberName] string propertyName = """") 
         {{
