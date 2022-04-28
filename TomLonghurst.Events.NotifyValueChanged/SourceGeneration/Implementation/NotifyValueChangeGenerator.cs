@@ -1,4 +1,8 @@
-﻿using System.Runtime.CompilerServices;
+﻿#if DEBUG
+using System.Diagnostics;
+#endif
+
+using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
@@ -106,7 +110,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             classBuilder.WriteLine($"get => {fieldName};");
             classBuilder.WriteLine("set");
             classBuilder.WriteLine("{");
-            classBuilder.WriteLine($"if({fieldName} == value)");
+            classBuilder.WriteLine($"if (EqualityComparer<{fullyQualifiedFieldType}>.Default.Equals({fieldName}, value))");
             classBuilder.WriteLine("{");
             classBuilder.WriteLine("return;");
             classBuilder.WriteLine("}");
