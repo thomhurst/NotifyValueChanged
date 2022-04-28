@@ -68,8 +68,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
     }
     
     private string GenerateClass(GeneratorExecutionContext context, INamedTypeSymbol @class, INamespaceSymbol @namespace, List<IFieldSymbol> fields, List<IPropertySymbol> properties) {
-        var stringWriter = new StringWriter();
-        var classBuilder = new CodeGenerationTextWriter(stringWriter);
+        var classBuilder = new CodeGenerationTextWriter();
         classBuilder.WriteLine("using System;");
         classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventArgs<>)));
         classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventHandler<>)));
@@ -167,8 +166,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         classBuilder.WriteLine("}");
         classBuilder.WriteLine("}");
         
-        classBuilder.Flush();
-        return stringWriter.ToString();
+        return classBuilder.ToString();
     }
 
     private void WriteTypeChangeImplementations(TextWriter classBuilder, List<IFieldSymbol> fields, INamedTypeSymbol @class)
@@ -224,8 +222,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
     { 
         var interfacesCreated = new List<string>();
 
-        var stringWriter = new StringWriter();
-        var classBuilder = new CodeGenerationTextWriter(stringWriter);
+        var classBuilder = new CodeGenerationTextWriter();
         var notifyPropertyChangedSymbol = context.Compilation.GetTypeByMetadataName(typeof(ValueChangedEventHandler<>).FullName);
 
         classBuilder.WriteLine("using System;");
@@ -241,8 +238,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         
         classBuilder.WriteLine("}");
         
-        classBuilder.Flush();
-        return stringWriter.ToString();
+        return classBuilder.ToString();
     }
 
     private static void GenerateGenericTypeEvent(ITypeSymbol? type, List<ISymbol> fieldsAndProperties, List<string> interfacesCreated, TextWriter classBuilder)

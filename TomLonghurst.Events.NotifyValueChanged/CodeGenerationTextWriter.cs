@@ -4,11 +4,7 @@ namespace TomLonghurst.Events.NotifyValueChanged;
 
 public class CodeGenerationTextWriter : IndentedTextWriter
 {
-    public CodeGenerationTextWriter(TextWriter writer) : base(writer)
-    {
-    }
-
-    public CodeGenerationTextWriter(TextWriter writer, string tabString) : base(writer, tabString)
+    public CodeGenerationTextWriter() : base(new StringWriter())
     {
     }
 
@@ -25,5 +21,11 @@ public class CodeGenerationTextWriter : IndentedTextWriter
         {
             Indent++;
         }
+    }
+
+    public override string ToString()
+    {
+        Flush();
+        return InnerWriter.ToString();
     }
 }
