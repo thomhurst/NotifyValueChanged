@@ -141,7 +141,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
 
             if (ShouldGenerateTypeValueChangeImplementation(field, @class))
             {
-                classBuilder.WriteLine($"OnType{simpleFieldType}ValueChanged(previousValue, value, previousValueDateTimeSet, _dateTime{propertyName}Set);");
+                classBuilder.WriteLine($"NotifyType{simpleFieldType}ValueChanged(previousValue, value, previousValueDateTimeSet, _dateTime{propertyName}Set);");
             }
             
             if (shouldGenerateAnyValueChangeImplementation)
@@ -197,7 +197,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             interfacesCreated.Add(interfaceName);
             
             classBuilder.WriteLine($"public event {nameof(ValueChangedEventHandler<object>)}<{fullyQualifiedFieldType}> OnType{simpleFieldType}ValueChange;");
-            classBuilder.WriteLine($"private void OnType{simpleFieldType}ValueChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, DateTimeOffset? previousValueDateTimeSet, DateTimeOffset? newValueDateTimeSet, [CallerMemberName] string propertyName = null)");
+            classBuilder.WriteLine($"private void NotifyType{simpleFieldType}ValueChanged({fullyQualifiedFieldType} previousValue, {fullyQualifiedFieldType} newValue, DateTimeOffset? previousValueDateTimeSet, DateTimeOffset? newValueDateTimeSet, [CallerMemberName] string propertyName = null)");
             classBuilder.WriteLine("{");
             classBuilder.WriteLine($"OnType{simpleFieldType}ValueChange?.Invoke(this, new {nameof(ValueChangedEventArgs<object>)}<{fullyQualifiedFieldType}>(propertyName, previousValue, newValue, previousValueDateTimeSet, newValueDateTimeSet));");
             classBuilder.WriteLine("}");

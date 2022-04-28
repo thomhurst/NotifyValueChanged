@@ -4,7 +4,7 @@ using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation;
 namespace TomLonghurst.Events.NotifyValueChanged.Example;
 
 [NotifyAnyValueChange]
-[NotifyTypeValueChange(typeof(Pipe))]
+[NotifyTypeValueChange(typeof(Pipe))] [NotifyTypeValueChange(typeof(string))]
 public partial class MyClass : IMyClass
 {
     [NotifyValueChange]
