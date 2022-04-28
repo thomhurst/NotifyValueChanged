@@ -100,6 +100,7 @@ public partial interface IPerson
 ### Class Attributes
 
 **NotifyAnyValueChange**
+
 Any field with the `[NotifyValueChange]` attribute will also fire an any value changed event
 
 ```csharp
@@ -124,6 +125,7 @@ person.OnAnyValueChange += (sender, eventArgs) =>
 ```
 
 **NotifyTypeValueChange**
+
 Any field with the `[NotifyValueChange]` attribute will also fire an type specific value changed event if that type was passed into the `[NotifyTypeValueChange(type)]` attribute
 
 ```csharp
