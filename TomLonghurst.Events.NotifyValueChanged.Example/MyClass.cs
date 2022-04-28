@@ -58,5 +58,7 @@ public partial class MyClass : IMyClass
     [NotifyValueChange]
     private Pipe _fieldWithGenericTypeEventEnabled;
 
-    public string HelloString => $"{_myName} is {_myAge}";
+    public string HelloString => $"I depend on notify Fields. {_myName} is {_myAge}";
+
+    public string PropertyDependentOnAnotherComputedProperty => $"I depend on {HelloString} which depends on Notify fields";
 }

@@ -148,9 +148,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             classBuilder.WriteLine(GenerateClassValueChangedImplementation(propertyName, fullyQualifiedFieldType));
         }
 
-        foreach (var propertyDependentOnField in _notifyValueChangeAttributeSyntaxReceiver.IdentifiedPropertiesAndAssociatedFields
-                     .Where(x => fields.Any(field => SymbolEqualityComparer.Default.Equals(field, x.Value)))
-                     .Select(x => x.Key))
+        foreach (var propertyDependentOnField in properties)
         {
             classBuilder.WriteLine(GenerateClassValueChangedImplementation(propertyDependentOnField.Name, propertyDependentOnField.Type.GetFullyQualifiedType()));
         }
