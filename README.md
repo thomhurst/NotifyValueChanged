@@ -18,6 +18,7 @@ Install via Nuget
 `Install-Package TomLonghurst.Events.NotifyValueChanged`
 
 ## Features
+
 -   Auto-generated properties for backing fields that fire events 
 -   Events that fire for computed properties
 -   Events that fire for specific types
@@ -65,6 +66,7 @@ person.Name = ""; // Event will fire and log to the console "Name was: 'Tom' and
 ### NotifyValueChangeAttribute Options
 
 **PropertyName** - Define a custom property name to be generated for your backing field
+
 ```csharp
     [NotifyValueChange(PropertyName = "FamilyName")]
     private string _lastName;
@@ -77,6 +79,7 @@ public String FamilyName { get { ... }; set { ... }; }
 ```
 
 **GetterAccessLevel** and **SetterAccessLevel** - Define custom accessors for your generated properties
+
 ```csharp
     [NotifyValueChange(GetterAccessLevel = PropertyAccessLevel.PrivateProtected, SetterAccessLevel = PropertyAccessLevel.Internal)]
     private string _middleName;
@@ -87,7 +90,6 @@ Outputs
 ```csharp
   internal String MiddleName { private protected get { ... }; set { ... }; }
 ```
-
 
 ### Computed Properties
 
