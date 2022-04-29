@@ -1,3 +1,4 @@
+using System.Globalization;
 using Moq;
 using NUnit.Framework;
 
@@ -110,7 +111,7 @@ public class Tests
             FamilyName = "Riddle"
         };
 
-        person.OnFullNameValueChange += (sender, args) =>
+        person.OnFullNameValueChange += (_, args) =>
         {
             _dummyInterface.Object.TwoStrings(args.PreviousValue, args.NewValue, args.PropertyName);
         };
@@ -130,7 +131,7 @@ public class Tests
             FamilyName = "Riddle"
         };
 
-        person.OnDescriptionValueChange += (sender, args) =>
+        person.OnDescriptionValueChange += (_, args) =>
         {
             _dummyInterface.Object.TwoStrings(args.PreviousValue, args.NewValue, args.PropertyName);
         };
@@ -148,6 +149,6 @@ public class Tests
         
         _dummyInterface.Verify(x => x.TwoStrings("Tom Marvolo Longhurst is 0 years old", "Tom Marvolo Longhurst is 29 years old", nameof(Person.Description)), Times.Once);
         
-        _dummyInterface.Verify(x => x.TwoStrings("Tom Marvolo Longhurst is 0 years old".ToUpper(), "Tom Marvolo Longhurst is 29 years old".ToUpper(), nameof(Person.UppercaseDescription)), Times.Once);
+        _dummyInterface.Verify(x => x.TwoStrings("Tom Marvolo Longhurst is 0 years old".ToUpper(CultureInfo.CurrentCulture), "Tom Marvolo Longhurst is 29 years old".ToUpper(CultureInfo.CurrentCulture), nameof(Person.UppercaseDescription)), Times.Once);
     }
 }

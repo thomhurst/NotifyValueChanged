@@ -1,4 +1,5 @@
-﻿using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Attributes;
+﻿using System.Globalization;
+using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Attributes;
 using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Options;
 
 namespace TomLonghurst.Events.NotifyValueChanged.UnitTests;
@@ -26,5 +27,5 @@ public partial class Person
 
     public string Description => $"{FullName} is {AgeInYears}";
 
-    public string UppercaseDescription => Description.ToUpper();
+    public string UppercaseDescription => Description.ToUpper(CultureInfo.CurrentCulture);
 }
