@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using TomLonghurst.Events.NotifyValueChanged.Extensions;
 using TomLonghurst.Events.NotifyValueChanged.Helpers;
+using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Attributes;
 
 namespace TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Interface;
 

@@ -1,4 +1,5 @@
-﻿using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Interface;
+﻿using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Attributes;
+using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Interface;
 
 namespace TomLonghurst.Events.NotifyValueChanged.Example;
 

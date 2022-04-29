@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using TomLonghurst.Events.NotifyValueChanged.Extensions;
+using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Attributes;
 
 namespace TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Interface;
 
