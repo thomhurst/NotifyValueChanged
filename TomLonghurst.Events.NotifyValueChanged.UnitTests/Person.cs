@@ -11,7 +11,7 @@ public partial class Person
     [NotifyValueChange]
     private string _firstName;
 
-    [NotifyValueChange(GetterAccessLevel = PropertyAccessLevel.Internal, SetterAccessLevel = PropertyAccessLevel.PrivateProtected)]
+    [NotifyValueChange(GetterAccessLevel = PropertyAccessLevel.PrivateProtected, SetterAccessLevel = PropertyAccessLevel.Internal)]
     private string _middleName;
     
     [NotifyValueChange(PropertyName = "FamilyName")]

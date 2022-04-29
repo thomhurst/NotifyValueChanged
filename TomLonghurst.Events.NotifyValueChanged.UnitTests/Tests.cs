@@ -125,7 +125,8 @@ public class Tests
         var person = new Person 
         {
             FirstName = "Tom",
-            FamilyName = "Jones"
+            MiddleName = "Marvolo",
+            FamilyName = "Riddle"
         };
 
         person.OnDescriptionValueChange += (sender, args) =>
@@ -140,12 +141,12 @@ public class Tests
 
         person.FamilyName = "Longhurst";
         
-        _dummyInterface.Verify(x => x.TwoStrings("Tom Jones is 0 years old", "Tom Longhurst is 0 years old", nameof(Person.Description)), Times.Once);
+        _dummyInterface.Verify(x => x.TwoStrings("Tom Marvolo Riddle is 0 years old", "Tom Marvolo Longhurst is 0 years old", nameof(Person.Description)), Times.Once);
 
         person.Age = 29;
         
-        _dummyInterface.Verify(x => x.TwoStrings("Tom Longhurst is 0 years old", "Tom Longhurst is 29 years old", nameof(Person.Description)), Times.Once);
+        _dummyInterface.Verify(x => x.TwoStrings("Tom Marvolo Longhurst is 0 years old", "Tom Marvolo Longhurst is 29 years old", nameof(Person.Description)), Times.Once);
         
-        _dummyInterface.Verify(x => x.TwoStrings("Tom Longhurst is 0 years old".ToUpper(), "Tom Longhurst is 29 years old".ToUpper(), nameof(Person.UppercaseDescription)), Times.Once);
+        _dummyInterface.Verify(x => x.TwoStrings("Tom Marvolo Longhurst is 0 years old".ToUpper(), "Tom Marvolo Longhurst is 29 years old".ToUpper(), nameof(Person.UppercaseDescription)), Times.Once);
     }
 }
