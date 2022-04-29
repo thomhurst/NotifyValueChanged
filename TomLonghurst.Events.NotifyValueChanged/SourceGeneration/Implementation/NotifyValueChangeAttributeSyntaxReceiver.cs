@@ -119,6 +119,7 @@ internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
 
                 break;
             }
+            default: break;
         }
 
         return fieldSymbols.Any();
