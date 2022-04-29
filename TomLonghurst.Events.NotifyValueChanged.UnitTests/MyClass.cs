@@ -5,6 +5,8 @@ using TomLonghurst.Events.NotifyValueChanged.UnitTests.TestNamespace1;
 namespace TomLonghurst.Events.NotifyValueChanged.UnitTests;
 
 [NotifyTypeValueChange(typeof(string))]
+[NotifyTypeValueChange(typeof(TomLonghurst.Events.NotifyValueChanged.UnitTests.TestNamespace1.SameTypeNameInDifferentNamespace))]
+[NotifyTypeValueChange(typeof(TomLonghurst.Events.NotifyValueChanged.UnitTests.TestNamespace2.SameTypeNameInDifferentNamespace))]
 public partial class MyClass
 {
     [NotifyValueChange]

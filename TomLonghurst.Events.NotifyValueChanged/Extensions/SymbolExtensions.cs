@@ -7,6 +7,7 @@ namespace TomLonghurst.Events.NotifyValueChanged.Extensions;
 
 internal static class SymbolExtensions
 {
+    private static readonly Dictionary<string, string> FullyQualifiedToSimpleNameDictionary = new();
     public static string GetFullyQualifiedType(this ITypeSymbol type)
     {
         return type.ToDisplayString(SymbolDisplayFormats.NamespaceAndType);
@@ -14,29 +15,38 @@ internal static class SymbolExtensions
     
     public static string GetSimpleTypeName(this ITypeSymbol type)
     {
-        var simpleFieldName = GetFullyQualifiedType(type).Split('.').Last();
+        var fullyQualifiedType = GetFullyQualifiedType(type);
+
+        if (FullyQualifiedToSimpleNameDictionary.TryGetValue(fullyQualifiedType, out var simpleTypeName))
+        {
+            return simpleTypeName;
+        }
+        
+        simpleTypeName = fullyQualifiedType.Split('.').Last();
 
         if (type.NullableAnnotation == NullableAnnotation.Annotated)
         {
-            simpleFieldName = $"Nullable{simpleFieldName}".Replace("?", string.Empty);
+            simpleTypeName = $"Nullable{simpleTypeName}".Replace("?", string.Empty);
         }
 
         var typeArguments = GetGenericTypeArguments(type).ToList();
 
-        if (!typeArguments.Any())
+        if (typeArguments.Any() && simpleTypeName.Contains('<') && simpleTypeName.Contains('>'))
         {
-            return simpleFieldName;   
+            var firstDiamondBracketIndex = simpleTypeName.IndexOf('<');
+            var lastDiamondBracketIndex = simpleTypeName.LastIndexOf('>');
+
+            simpleTypeName = simpleTypeName.Replace(simpleTypeName.Substring(firstDiamondBracketIndex, lastDiamondBracketIndex - firstDiamondBracketIndex+1), string.Join("", typeArguments));
         }
 
-        if (simpleFieldName.Contains('<') && simpleFieldName.Contains('>'))
+        if (FullyQualifiedToSimpleNameDictionary.Any(x => x.Value == simpleTypeName))
         {
-            var firstDiamondBracketIndex = simpleFieldName.IndexOf('<');
-            var lastDiamondBracketIndex = simpleFieldName.LastIndexOf('>');
-
-            return simpleFieldName.Replace(simpleFieldName.Substring(firstDiamondBracketIndex, lastDiamondBracketIndex - firstDiamondBracketIndex+1), string.Join("", typeArguments));
+            simpleTypeName = type.ContainingNamespace.ToDisplayString().Replace(".", "") + simpleTypeName;
         }
 
-        return simpleFieldName;
+        FullyQualifiedToSimpleNameDictionary[fullyQualifiedType] = simpleTypeName;
+
+        return simpleTypeName;
     }
 
     public static ITypeSymbol GetSymbolType(this ISymbol symbol)
