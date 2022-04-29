@@ -39,11 +39,7 @@ public class GenerateInterfaceValueChangeEventGenerator : ISourceGenerator
     private string GenerateInterface(GeneratorExecutionContext context, INamedTypeSymbol @interface, INamespaceSymbol @namespace, List<IPropertySymbol> properties) {
         var classBuilder = new CodeGenerationTextWriter();
 
-        classBuilder.WriteLine("using System;");
-        classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventArgs<>)));
-        classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventHandler<>)));
-        classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(CallerMemberNameAttribute)));
-        classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(GenerateInterfaceValueChangeEventAttribute)));
+        classBuilder.WriteLine(context.GetUsingStatementsForTypes(typeof(string), typeof(ValueChangedEventArgs<>), typeof(ValueChangedEventHandler<>), typeof(CallerMemberNameAttribute), typeof(GenerateInterfaceValueChangeEventAttribute)));
         classBuilder.WriteLine($"namespace {@namespace.ToDisplayString()}");
         classBuilder.WriteLine("{");
         

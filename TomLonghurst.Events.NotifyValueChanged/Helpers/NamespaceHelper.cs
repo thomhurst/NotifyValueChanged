@@ -4,10 +4,11 @@ namespace TomLonghurst.Events.NotifyValueChanged.Helpers;
 
 public static class NamespaceHelper
 {
-    public static string GetUsingStatementForNamespace(this GeneratorExecutionContext context, Type type)
+    public static string GetUsingStatementsForTypes(this GeneratorExecutionContext context, params Type[] types)
     {
-        var typeSymbol = context.Compilation.GetTypeByMetadataName(type.FullName);
+        var namespaces = types
+            .Select(type => context.Compilation.GetTypeByMetadataName(type.FullName).ContainingNamespace).Distinct();
 
-        return $"using {typeSymbol.ContainingNamespace};";
+        return string.Join(Environment.NewLine, namespaces.Select(@namespace => $"using {@namespace};"));
     } 
 }

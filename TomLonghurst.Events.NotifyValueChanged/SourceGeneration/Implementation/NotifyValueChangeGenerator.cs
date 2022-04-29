@@ -71,11 +71,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
     
     private string GenerateClass(GeneratorExecutionContext context, INamedTypeSymbol @class, INamespaceSymbol @namespace, List<IFieldSymbol> fields, List<IPropertySymbol> properties) {
         var classBuilder = new CodeGenerationTextWriter();
-        classBuilder.WriteLine("using System;");
-        classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventArgs<>)));
-        classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventHandler<>)));
-        classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(CallerMemberNameAttribute)));
-        classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(Dictionary<,>)));
+        classBuilder.WriteLine(context.GetUsingStatementsForTypes(typeof(string), typeof(ValueChangedEventArgs<>), typeof(ValueChangedEventHandler<>), typeof(CallerMemberNameAttribute), typeof(Dictionary<,>)));
         classBuilder.WriteLine($"namespace {@namespace.ToDisplayString()}");
         classBuilder.WriteLine("{");
         
@@ -228,8 +224,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         var notifyPropertyChangedSymbol = context.Compilation.GetTypeByMetadataName(typeof(ValueChangedEventHandler<>).FullName);
 
         classBuilder.WriteLine("using System;");
-        classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(ValueChangedEventHandler<>)));
-        classBuilder.WriteLine(context.GetUsingStatementForNamespace(typeof(CallerMemberNameAttribute)));
+        classBuilder.WriteLine(context.GetUsingStatementsForTypes(typeof(string), typeof(ValueChangedEventArgs<>), typeof(ValueChangedEventHandler<>), typeof(CallerMemberNameAttribute)));
         classBuilder.WriteLine($"namespace {notifyPropertyChangedSymbol.ContainingNamespace.ToDisplayString()}");
         classBuilder.WriteLine("{");
 
