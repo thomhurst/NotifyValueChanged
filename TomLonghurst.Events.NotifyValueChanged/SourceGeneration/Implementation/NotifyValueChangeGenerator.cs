@@ -71,7 +71,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
     
     private string GenerateClass(GeneratorExecutionContext context, INamedTypeSymbol @class, INamespaceSymbol @namespace, List<IFieldSymbol> fields, List<IPropertySymbol> properties) {
         var classBuilder = new CodeGenerationTextWriter();
-        classBuilder.WriteLine(context.GetUsingStatementsForTypes(typeof(string), typeof(ValueChangedEventArgs<>), typeof(ValueChangedEventHandler<>), typeof(CallerMemberNameAttribute), typeof(Dictionary<,>)));
+        classBuilder.WriteLine(context.GetUsingStatementsForTypes(typeof(string), typeof(EqualityComparer<>), typeof(ValueChangedEventArgs<>), typeof(ValueChangedEventHandler<>), typeof(CallerMemberNameAttribute)));
         classBuilder.WriteLine($"namespace {@namespace.ToDisplayString()}");
         classBuilder.WriteLine("{");
         
@@ -116,14 +116,9 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             classBuilder.WriteLine("}");
             classBuilder.WriteLine();
 
-            if (propertiesDependentOnField.Any())
-            {
-                classBuilder.WriteLine("var previousComputedPropertyValues = new Dictionary<string, object>();");
-            }
-
             foreach (var propertyDependentOnField in propertiesDependentOnField)
             {
-                classBuilder.WriteLine($"previousComputedPropertyValues.Add(\"{propertyDependentOnField.Key.Name}\", {propertyDependentOnField.Key.Name});");
+                classBuilder.WriteLine($"var previousValue{propertyDependentOnField.Key.Name} = {propertyDependentOnField.Key.Name};");
             }
             
             classBuilder.WriteLine($"var previousValueDateTimeSet = _dateTime{propertyName}Set;");
@@ -136,7 +131,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
 
             foreach (var propertyDependentOnField in propertiesDependentOnField)
             {
-                classBuilder.WriteLine($"Notify{propertyDependentOnField.Key.Name}ValueChanged(({propertyDependentOnField.Key.Type.GetFullyQualifiedType()}) previousComputedPropertyValues[\"{propertyDependentOnField.Key.Name}\"], ({propertyDependentOnField.Key.Type.GetFullyQualifiedType()}) {propertyDependentOnField.Key.Name}, previousValueDateTimeSet, _dateTime{propertyName}Set, \"{propertyDependentOnField.Key.Name}\");");
+                classBuilder.WriteLine($"Notify{propertyDependentOnField.Key.Name}ValueChanged(previousValue{propertyDependentOnField.Key.Name}, {propertyDependentOnField.Key.Name}, previousValueDateTimeSet, _dateTime{propertyName}Set, \"{propertyDependentOnField.Key.Name}\");");
             }
 
             if (ShouldGenerateTypeValueChangeImplementation(field, @class))

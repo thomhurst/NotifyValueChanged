@@ -106,7 +106,8 @@ public class Tests
         var person = new Person 
         {
             FirstName = "Tom",
-            FamilyName = "Jones"
+            MiddleName = "Marvolo",
+            FamilyName = "Riddle"
         };
 
         person.OnFullNameValueChange += (sender, args) =>
@@ -116,7 +117,7 @@ public class Tests
 
         person.FamilyName = "Longhurst";
         
-        _dummyInterface.Verify(x => x.TwoStrings("Tom Jones", "Tom Longhurst", nameof(Person.FullName)), Times.Once);
+        _dummyInterface.Verify(x => x.TwoStrings("Tom Marvolo Riddle", "Tom Marvolo Longhurst", nameof(Person.FullName)), Times.Once);
     }
 
     [Test]
