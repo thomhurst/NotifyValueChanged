@@ -74,6 +74,12 @@ internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
                 foreach (var node in getterNode.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
                 {
                     var nodeSymbol = context.SemanticModel.GetSymbolInfo(node).Symbol;
+
+                    if (nodeSymbol is IMethodSymbol)
+                    {
+                        continue;
+                    }
+                    
                     if (nodeSymbol != null && IsBasedOnNotifyFields(nodeSymbol, context, out var innerFieldSymbols))
                     {
                         fieldSymbols.AddRange(innerFieldSymbols);

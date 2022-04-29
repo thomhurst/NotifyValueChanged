@@ -22,4 +22,6 @@ public partial class Person
     public string AgeInYears => $"{Age} years old";
 
     public string Description => $"{FullName} is {AgeInYears}";
+
+    public string UppercaseDescription => Description.ToUpper();
 }
