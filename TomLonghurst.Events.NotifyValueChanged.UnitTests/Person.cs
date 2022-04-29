@@ -2,6 +2,9 @@
 
 namespace TomLonghurst.Events.NotifyValueChanged.UnitTests;
 
+[NotifyTypeValueChange(typeof(string))]
+[NotifyTypeValueChange(typeof(int))]
+[NotifyAnyValueChange]
 public partial class Person
 {
     [NotifyValueChange]
