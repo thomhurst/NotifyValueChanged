@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Attributes;
+using TomLonghurst.Events.NotifyValueChanged.UnitTests.TestNamespace1;
 
 namespace TomLonghurst.Events.NotifyValueChanged.UnitTests;
 
@@ -59,4 +60,10 @@ public partial class MyClass
     
     [NotifyValueChange]
     private IDictionary<string?, int?>? _nullableGenericWithTwoTypeParametersNullableBothType;
+
+    [NotifyValueChange]
+    private TomLonghurst.Events.NotifyValueChanged.UnitTests.TestNamespace1.SameTypeNameInDifferentNamespace _sameTypeNameInDifferentNamespace1;
+    
+    [NotifyValueChange]
+    private TomLonghurst.Events.NotifyValueChanged.UnitTests.TestNamespace2.SameTypeNameInDifferentNamespace _sameTypeNameInDifferentNamespace2;
 }

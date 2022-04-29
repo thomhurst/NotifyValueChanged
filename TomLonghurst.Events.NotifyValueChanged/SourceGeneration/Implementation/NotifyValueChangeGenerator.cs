@@ -62,7 +62,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
             
             var source = GenerateClass(context, containingClass, namespaceSymbol, fields, properties);
             typeEventsThatNeedInterfacesGenerating.AddRange(typesWithTypeValueChangeEvents);
-            context.AddSource($"{containingClass.Name}_NotifyValueChanged.generated", SourceText.From(source, Encoding.UTF8));
+            context.AddSource($"{containingClass.ContainingNamespace.ToDisplayString().Replace('.', '_')}_{containingClass.Name}_NotifyValueChanged.generated", SourceText.From(source, Encoding.UTF8));
         }
 
         var interfaceSource = WriteTypeEventInterfaces(context, typeEventsThatNeedInterfacesGenerating, allFields, allProperties);
