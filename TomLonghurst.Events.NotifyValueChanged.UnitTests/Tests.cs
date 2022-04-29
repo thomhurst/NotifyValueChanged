@@ -133,6 +133,11 @@ public class Tests
         {
             _dummyInterface.Object.TwoStrings(args.PreviousValue, args.NewValue, args.PropertyName);
         };
+        
+        person.OnUppercaseDescriptionValueChange += (sender, args) =>
+        {
+            _dummyInterface.Object.TwoStrings(args.PreviousValue, args.NewValue, args.PropertyName);
+        };
 
         person.LastName = "Longhurst";
         
@@ -141,5 +146,7 @@ public class Tests
         person.Age = 29;
         
         _dummyInterface.Verify(x => x.TwoStrings("Tom Longhurst is 0 years old", "Tom Longhurst is 29 years old", nameof(Person.Description)), Times.Once);
+        
+        _dummyInterface.Verify(x => x.TwoStrings("Tom Longhurst is 0 years old".ToUpper(), "Tom Longhurst is 29 years old".ToUpper(), nameof(Person.UppercaseDescription)), Times.Once);
     }
 }
