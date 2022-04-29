@@ -24,6 +24,7 @@ Install via Nuget
 -   Events that fire for specific types
 -   Events that fire for any type
 -   Custom property names
+-   Custom accessors for property getters and setters
 
 ## Example
 
