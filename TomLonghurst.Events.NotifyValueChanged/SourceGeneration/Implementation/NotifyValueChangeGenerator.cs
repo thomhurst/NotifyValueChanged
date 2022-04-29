@@ -18,17 +18,18 @@ public class NotifyValueChangeGenerator : ISourceGenerator
 
     public void Initialize(GeneratorInitializationContext context)
     {
-        context.RegisterForSyntaxNotifications(() => new NotifyValueChangeAttributeSyntaxReceiver());
-    }
-
-    public void Execute(GeneratorExecutionContext context)
-    {
 #if DEBUG
         if (!Debugger.IsAttached)
         {
             Debugger.Launch();
         }
 #endif
+        
+        context.RegisterForSyntaxNotifications(() => new NotifyValueChangeAttributeSyntaxReceiver());
+    }
+
+    public void Execute(GeneratorExecutionContext context)
+    {
         if (context.SyntaxContextReceiver is not NotifyValueChangeAttributeSyntaxReceiver syntaxReciever)
         {
             return;
@@ -283,7 +284,6 @@ public class NotifyValueChangeGenerator : ISourceGenerator
 
     private static bool ShouldGenerateTypeValueChangeImplementation(ISymbol symbol, INamedTypeSymbol @class)
     {
-
         ITypeSymbol type;
 
         switch (symbol)
