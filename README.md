@@ -24,6 +24,10 @@ Install via Nuget
 -   Events that fire for any type
 -   Custom property names
 
+## Example
+
+[This small class](https://gist.github.com/thomhurst/fe4d0516fe6c14d5c0bad2b0c1a6ac34) will [generate this class!](https://gist.github.com/thomhurst/1f9dd066e1a1069b974f3da7993b8c58)
+
 ## Usage
 
 ### Fields
