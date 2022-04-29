@@ -86,7 +86,7 @@ internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
                     var symbols = fieldDeclarationSyntaxes.SelectMany(x => x.Declaration.Variables)
                         .Select(x => context.SemanticModel.GetDeclaredSymbol(x));
                     
-                    var fields = symbols.OfType<IFieldSymbol>();
+                    var fields = symbols.OfType<IFieldSymbol>().ToList();
 
                     var fieldsWithCustomPropertyNameAttribute = fields.Where(x =>
                         x.GetAttributePropertyValue<NotifyValueChangeAttribute, string>(a => a.PropertyName) == node.Identifier.Text)
@@ -95,6 +95,17 @@ internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
                     if (fieldsWithCustomPropertyNameAttribute.Any())
                     {
                         fieldSymbols.AddRange(fieldsWithCustomPropertyNameAttribute);
+                        continue;
+                    }
+
+                    var fieldsWithMatchingNameAndNotifyAttribute = fields
+                        .Where(x => string.Equals(x.Name.TrimStart('_'), node.Identifier.Text, StringComparison.OrdinalIgnoreCase))
+                        .Where(x => x.HasAttribute<NotifyValueChangeAttribute>())
+                        .ToList();
+                    
+                    if (fieldsWithMatchingNameAndNotifyAttribute.Any())
+                    {
+                        fieldSymbols.AddRange(fieldsWithMatchingNameAndNotifyAttribute);
                         continue;
                     }
                 }
