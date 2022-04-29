@@ -110,11 +110,36 @@ public class Tests
             LastName = "Jones"
         };
 
-        person.OnFullNameValueChange += (sender, eventArgs) =>
+        person.OnFullNameValueChange += (sender, args) =>
         {
-            Console.WriteLine($"The Person's Full Name was: '{eventArgs.PreviousValue}' and is now '{eventArgs.NewValue}'\n");
+            _dummyInterface.Object.TwoStrings(args.PreviousValue, args.NewValue, args.PropertyName);
         };
 
-        person.LastName = "Longhurst"; // Will output The Person's Full Name was: 'Tom Jones' and is now 'Tom Longhurst'
+        person.LastName = "Longhurst";
+        
+        _dummyInterface.Verify(x => x.TwoStrings("Tom Jones", "Tom Longhurst", nameof(Person.FullName)), Times.Once);
+    }
+
+    [Test]
+    public void Computed_Property_Based_On_Another_Computed_Property_Trigger()
+    {
+        var person = new Person 
+        {
+            FirstName = "Tom",
+            LastName = "Jones"
+        };
+
+        person.OnDescriptionValueChange += (sender, args) =>
+        {
+            _dummyInterface.Object.TwoStrings(args.PreviousValue, args.NewValue, args.PropertyName);
+        };
+
+        person.LastName = "Longhurst";
+        
+        _dummyInterface.Verify(x => x.TwoStrings("Tom Jones is 0 years old", "Tom Longhurst is 0 years old", nameof(Person.Description)), Times.Once);
+
+        person.Age = 29;
+        
+        _dummyInterface.Verify(x => x.TwoStrings("Tom Longhurst is 0 years old", "Tom Longhurst is 29 years old", nameof(Person.Description)), Times.Once);
     }
 }

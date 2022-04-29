@@ -135,7 +135,7 @@ public class NotifyValueChangeGenerator : ISourceGenerator
 
             foreach (var propertyDependentOnField in propertiesDependentOnField)
             {
-                classBuilder.WriteLine($"Notify{propertyDependentOnField.Key.Name}ValueChanged(({propertyDependentOnField.Key.Type.GetFullyQualifiedType()}) previousComputedPropertyValues[\"{propertyDependentOnField.Key.Name}\"], ({propertyDependentOnField.Key.Type.GetFullyQualifiedType()}) {propertyDependentOnField.Key.Name}, previousValueDateTimeSet, _dateTime{propertyName}Set);");
+                classBuilder.WriteLine($"Notify{propertyDependentOnField.Key.Name}ValueChanged(({propertyDependentOnField.Key.Type.GetFullyQualifiedType()}) previousComputedPropertyValues[\"{propertyDependentOnField.Key.Name}\"], ({propertyDependentOnField.Key.Type.GetFullyQualifiedType()}) {propertyDependentOnField.Key.Name}, previousValueDateTimeSet, _dateTime{propertyName}Set, \"{propertyDependentOnField.Key.Name}\");");
             }
 
             if (ShouldGenerateTypeValueChangeImplementation(field, @class))
