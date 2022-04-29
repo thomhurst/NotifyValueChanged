@@ -1,4 +1,4 @@
-﻿namespace TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation;
+﻿namespace TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Attributes;
 
 [AttributeUsage(AttributeTargets.Field)]
 public class NotifyValueChangeAttribute : Attribute
