@@ -107,7 +107,7 @@ public class Tests
         var person = new Person 
         {
             FirstName = "Tom",
-            LastName = "Jones"
+            FamilyName = "Jones"
         };
 
         person.OnFullNameValueChange += (sender, args) =>
@@ -115,7 +115,7 @@ public class Tests
             _dummyInterface.Object.TwoStrings(args.PreviousValue, args.NewValue, args.PropertyName);
         };
 
-        person.LastName = "Longhurst";
+        person.FamilyName = "Longhurst";
         
         _dummyInterface.Verify(x => x.TwoStrings("Tom Jones", "Tom Longhurst", nameof(Person.FullName)), Times.Once);
     }
@@ -126,7 +126,7 @@ public class Tests
         var person = new Person 
         {
             FirstName = "Tom",
-            LastName = "Jones"
+            FamilyName = "Jones"
         };
 
         person.OnDescriptionValueChange += (sender, args) =>
@@ -139,7 +139,7 @@ public class Tests
             _dummyInterface.Object.TwoStrings(args.PreviousValue, args.NewValue, args.PropertyName);
         };
 
-        person.LastName = "Longhurst";
+        person.FamilyName = "Longhurst";
         
         _dummyInterface.Verify(x => x.TwoStrings("Tom Jones is 0 years old", "Tom Longhurst is 0 years old", nameof(Person.Description)), Times.Once);
 

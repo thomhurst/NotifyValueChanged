@@ -2,6 +2,7 @@
 using TomLonghurst.Events.NotifyValueChanged.SourceGeneration;
 using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Attributes;
 using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation;
+using TomLonghurst.Events.NotifyValueChanged.Wrappers;
 
 namespace TomLonghurst.Events.NotifyValueChanged.Extensions;
 
@@ -49,9 +50,11 @@ internal static class SymbolExtensions
         };
     }
 
-    public static AttributeData? GetNotifyValueChangeAttribute(this ISymbol symbol)
+    public static NotifyValueChangeAttributeData? GetNotifyValueChangeAttribute(this ISymbol symbol)
     {
-        return symbol.GetAttributes().FirstOrDefault(x => x.AttributeClass.ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == typeof(NotifyValueChangeAttribute).FullName);
+        var notifyValueChangeAttribute = symbol.GetAttributes().FirstOrDefault(x => x.AttributeClass.ToDisplayString(SymbolDisplayFormats.NamespaceAndType) == typeof(NotifyValueChangeAttribute).FullName);
+        
+        return notifyValueChangeAttribute is null ? null : new NotifyValueChangeAttributeData(notifyValueChangeAttribute);
     }
 
     public static bool HasAttribute<TAttribute>(this ISymbol symbol) where TAttribute : Attribute

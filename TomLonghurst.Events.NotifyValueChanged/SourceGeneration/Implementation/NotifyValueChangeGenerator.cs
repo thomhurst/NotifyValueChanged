@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.Text;
 using TomLonghurst.Events.NotifyValueChanged.Extensions;
 using TomLonghurst.Events.NotifyValueChanged.Helpers;
 using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Attributes;
+using TomLonghurst.Events.NotifyValueChanged.Wrappers;
 
 namespace TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation;
 
@@ -96,16 +97,19 @@ public class NotifyValueChangeGenerator : ISourceGenerator
         foreach(var field in fields) {
             var propertiesDependentOnField = _notifyValueChangeAttributeSyntaxReceiver.IdentifiedPropertiesAndAssociatedFields
                 .Where(x => x.Value.Contains(field, SymbolEqualityComparer.Default)).ToList();
+
+            var attributeOnField = field.GetNotifyValueChangeAttribute();
+            var propertyAccessLevelMetadata = PropertyAccessLevelHelper.GetPropertyAccessLevelMetadata(attributeOnField);
             
             var fullyQualifiedFieldType = field.Type.GetFullyQualifiedType();
             var simpleFieldType = field.Type.GetSimpleTypeName();
             var fieldName = field.Name;
             var propertyName = field.GetPropertyName();
             classBuilder.WriteLine($"private DateTimeOffset _dateTime{propertyName}Set;");
-            classBuilder.WriteLine($"public {fullyQualifiedFieldType} {propertyName}");
+            classBuilder.WriteLine($"{propertyAccessLevelMetadata.MainProperty}{fullyQualifiedFieldType} {propertyName}");
             classBuilder.WriteLine("{");
-            classBuilder.WriteLine($"get => {fieldName};");
-            classBuilder.WriteLine("set");
+            classBuilder.WriteLine($"{propertyAccessLevelMetadata.Getter}get => {fieldName};");
+            classBuilder.WriteLine($"{propertyAccessLevelMetadata.Setter}set");
             classBuilder.WriteLine("{");
             classBuilder.WriteLine($"if (EqualityComparer<{fullyQualifiedFieldType}>.Default.Equals({fieldName}, value))");
             classBuilder.WriteLine("{");

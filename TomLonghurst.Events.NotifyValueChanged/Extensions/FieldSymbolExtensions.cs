@@ -16,22 +16,9 @@ internal static class FieldSymbolExtensions
             return NormalizePropertyName(fieldSymbol);
         }
 
-        var anyPropertyNameArgument = attribute.NamedArguments.Any(x => x.Key == nameof(NotifyValueChangeAttribute.PropertyName));
+        var customPropertyName = attribute.CustomPropertyName;
 
-        if (!anyPropertyNameArgument)
-        {
-            return NormalizePropertyName(fieldSymbol);
-        }
-        
-        var customPropertyName = attribute.NamedArguments.First(x => x.Key == nameof(NotifyValueChangeAttribute.PropertyName)).Value.Value?.ToString();
-
-        if (!string.IsNullOrWhiteSpace(customPropertyName))
-        {
-            return customPropertyName;
-        }
-
-        return NormalizePropertyName(fieldSymbol);
-
+        return !string.IsNullOrWhiteSpace(customPropertyName) ? customPropertyName : NormalizePropertyName(fieldSymbol);
     }
 
     private static string NormalizePropertyName(IFieldSymbol fieldSymbol)

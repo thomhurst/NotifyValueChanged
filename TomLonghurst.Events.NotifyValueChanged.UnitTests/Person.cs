@@ -1,4 +1,5 @@
 ﻿using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Attributes;
+using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Options;
 
 namespace TomLonghurst.Events.NotifyValueChanged.UnitTests;
 
@@ -9,8 +10,11 @@ public partial class Person
 {
     [NotifyValueChange]
     private string _firstName;
+
+    [NotifyValueChange(GetterAccessLevel = PropertyAccessLevel.Internal, SetterAccessLevel = PropertyAccessLevel.PrivateProtected)]
+    private string _middleName;
     
-    [NotifyValueChange]
+    [NotifyValueChange(PropertyName = "FamilyName")]
     private string _lastName;
 
     [NotifyValueChange]
