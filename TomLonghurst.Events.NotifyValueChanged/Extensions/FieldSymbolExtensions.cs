@@ -1,7 +1,5 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
-using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Attributes;
-using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation;
 
 namespace TomLonghurst.Events.NotifyValueChanged.Extensions;
 

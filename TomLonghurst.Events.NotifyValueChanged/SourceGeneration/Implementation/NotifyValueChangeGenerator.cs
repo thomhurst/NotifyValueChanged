@@ -9,7 +9,6 @@ using Microsoft.CodeAnalysis.Text;
 using TomLonghurst.Events.NotifyValueChanged.Extensions;
 using TomLonghurst.Events.NotifyValueChanged.Helpers;
 using TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Attributes;
-using TomLonghurst.Events.NotifyValueChanged.Wrappers;
 
 namespace TomLonghurst.Events.NotifyValueChanged.SourceGeneration.Implementation;
 
