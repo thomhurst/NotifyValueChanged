@@ -20,7 +20,7 @@ public partial class Person
     [NotifyValueChange]
     private int _age;
 
-    public string FullName => $"{_firstName} {_lastName}";
+    public string FullName => $"{_firstName} {MiddleName} {_lastName}";
 
     public string AgeInYears => $"{Age} years old";
 
