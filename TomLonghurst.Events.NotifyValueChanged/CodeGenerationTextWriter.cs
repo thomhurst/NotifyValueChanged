@@ -10,14 +10,16 @@ public class CodeGenerationTextWriter : IndentedTextWriter
 
     public override void WriteLine(string s)
     {
-        if (s.Trim().StartsWith("}"))
+        var trimmed = s.Trim();
+        
+        if (trimmed.StartsWith("}"))
         {
             Indent--;
         }
         
         base.WriteLine(s);
         
-        if (s.Trim().StartsWith("{"))
+        if (trimmed.StartsWith("{"))
         {
             Indent++;
         }
