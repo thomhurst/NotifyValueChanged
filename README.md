@@ -62,6 +62,36 @@ person.Name = "Tom"; // No event will fire because the value hasn't changed
 person.Name = ""; // Event will fire and log to the console "Name was: 'Tom' and is now ''"
 ```
 
+### NotifyValueChangeAttribute Options
+
+*PropertyName* - Define a custom property name to be generated for your backing field
+```csharp
+    [NotifyValueChange(PropertyName = "FamilyName")]
+    private string _lastName;
+```
+
+Outputs
+```
+
+```csharp
+public String FamilyName { get { ... }; set { ... }; }
+```
+
+*GetterAccessLevel* and *SetterAccessLevel* - Define custom accessors for your generated properties
+```csharp
+    [NotifyValueChange(GetterAccessLevel = PropertyAccessLevel.PrivateProtected, SetterAccessLevel = PropertyAccessLevel.Internal)]
+    private string _middleName;
+```
+
+
+Outputs
+```
+
+```csharp
+  internal String MiddleName { private protected get { ... }; set { ... }; }
+```
+
+
 ### Computed Properties
 
 If you have a property that has its value computed based on the value of a backing field with a `[NotifyValueChange]` attribute, then this should automatically produce an event to subscribe to also.
