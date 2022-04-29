@@ -64,7 +64,7 @@ person.Name = ""; // Event will fire and log to the console "Name was: 'Tom' and
 
 ### NotifyValueChangeAttribute Options
 
-_PropertyName_ - Define a custom property name to be generated for your backing field
+**PropertyName** - Define a custom property name to be generated for your backing field
 ```csharp
     [NotifyValueChange(PropertyName = "FamilyName")]
     private string _lastName;
@@ -76,7 +76,7 @@ Outputs
 public String FamilyName { get { ... }; set { ... }; }
 ```
 
-_GetterAccessLevel_ and _SetterAccessLevel_ - Define custom accessors for your generated properties
+**GetterAccessLevel** and **SetterAccessLevel** - Define custom accessors for your generated properties
 ```csharp
     [NotifyValueChange(GetterAccessLevel = PropertyAccessLevel.PrivateProtected, SetterAccessLevel = PropertyAccessLevel.Internal)]
     private string _middleName;
