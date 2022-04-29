@@ -94,7 +94,7 @@ Outputs
 ### Computed Properties
 
 If you have a property that has its value computed based on the value of a backing field with a `[NotifyValueChange]` attribute, then this should automatically produce an event to subscribe to also.
-This event will fire when any of the backing field's value changes.
+This event will fire when any of the backing fields' values change.
 
 ```csharp
 public partial class Person
@@ -167,7 +167,7 @@ person.OnAnyValueChange += (sender, eventArgs) =>
 };
 ```
 
-#### NotifyTypeValueChange\*
+#### NotifyTypeValueChange
 
 Any field with the `[NotifyValueChange]` attribute will also fire an type specific value changed event if that type was passed into the `[NotifyTypeValueChange(type)]` attribute
 
