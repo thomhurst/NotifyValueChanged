@@ -65,12 +65,14 @@ internal class NotifyValueChangeAttributeSyntaxReceiver : ISyntaxContextReceiver
             {
                 var location = propertySymbol.GetMethod.Locations.FirstOrDefault();
 
-                if (location is null)
+                var locationSourceTree = location?.SourceTree;
+
+                if (locationSourceTree is null)
                 {
                     break;
                 }
-
-                var getterNode = location.SourceTree.GetRoot().FindNode(location.SourceSpan);
+                
+                var getterNode = locationSourceTree.GetRoot().FindNode(location.SourceSpan);
 
                 foreach (var node in getterNode.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
                 {
