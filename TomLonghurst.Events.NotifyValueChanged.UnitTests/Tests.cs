@@ -136,7 +136,7 @@ public class Tests
             _dummyInterface.Object.TwoStrings(args.PreviousValue, args.NewValue, args.PropertyName);
         };
         
-        person.OnUppercaseDescriptionValueChange += (sender, args) =>
+        person.OnUppercaseDescriptionValueChange += (_, args) =>
         {
             _dummyInterface.Object.TwoStrings(args.PreviousValue, args.NewValue, args.PropertyName);
         };
