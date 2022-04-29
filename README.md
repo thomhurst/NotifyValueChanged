@@ -71,7 +71,6 @@ person.Name = ""; // Event will fire and log to the console "Name was: 'Tom' and
 ```
 
 Outputs
-```
 
 ```csharp
 public String FamilyName { get { ... }; set { ... }; }
@@ -85,7 +84,6 @@ public String FamilyName { get { ... }; set { ... }; }
 
 
 Outputs
-```
 
 ```csharp
   internal String MiddleName { private protected get { ... }; set { ... }; }
